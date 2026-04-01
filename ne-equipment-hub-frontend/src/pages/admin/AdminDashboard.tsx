@@ -1,0 +1,357 @@
+import {
+  DollarSign,
+  FileText,
+  Package,
+  TrendingUp,
+  Clock,
+  AlertTriangle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Plus,
+  Upload,
+  Eye,
+  ShoppingCart,
+  Loader2,
+  CheckCircle,
+  Save
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import api from '@/services/api';
+import logoNE from '@/assets/logo-ne-equipment.png';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import {
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
+
+/* ── Helpers ── */
+const getAlertStyle = (type: string) => {
+  const map: Record<string, string> = {
+    critical: 'border-l-4 border-l-destructive bg-destructive/5',
+    success: 'border-l-4 border-l-whatsapp bg-whatsapp/5',
+    warning: 'border-l-4 border-l-orange bg-orange/5',
+  };
+  return map[type] || '';
+};
+
+const getStatusBadge = (status: string) => {
+  const map: Record<string, { label: string; className: string }> = {
+    processing: { label: 'Processando', className: 'bg-primary/10 text-primary border-primary/20' },
+    shipped: { label: 'Enviado', className: 'bg-blue-100/10 text-blue-700 border-blue-200/20' },
+    customs: { label: 'Desembaraço', className: 'bg-orange/10 text-orange border-orange/20' },
+    pending_payment: { label: 'Pag. Pendente', className: 'bg-destructive/10 text-destructive border-destructive/20' },
+    delivered: { label: 'Entregue', className: 'bg-whatsapp/10 text-whatsapp border-whatsapp/20' },
+    paid: { label: 'Pago', className: 'bg-green-100 text-green-700 border-green-200' },
+  };
+  const s = map[status] || { label: status, className: 'bg-gray-100 text-gray-700' };
+  return <Badge variant="outline" className={s.className}>{s.label}</Badge>;
+};
+
+const formatMZN = (v: number) => {
+  return (v / 1000000).toFixed(1) + 'M';
+};
+
+interface AdminDashboardProps {
+  onAddProduct?: () => void;
+}
+
+const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/admin/dashboard');
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 h-[500px]">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground font-medium animate-pulse">A carregar métricas B2B em tempo real...</p>
+      </div>
+    );
+  }
+
+  if (!data) return (
+    <div className="p-8 text-center text-destructive">
+      Erro ao carregar dados do dashboard. Verifique a conexão com o backend.
+    </div>
+  );
+
+  const { 
+    kpis = [], 
+    revenueData = [], 
+    statusDistribution = [], 
+    funnelData = [], 
+    recentOrders = [], 
+    alerts = [] 
+  } = data;
+  
+  const getIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'DollarSign': return DollarSign;
+      case 'FileText': return FileText;
+      case 'Package': return Package;
+      case 'ShoppingCart': return ShoppingCart;
+      default: return TrendingUp;
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-700">
+      {/* Branded Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-dark p-6 rounded-2xl text-white relative overflow-hidden shadow-xl">
+        <div className="absolute -top-12 -right-12 w-64 h-64 bg-gold/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+        
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="p-3 bg-white rounded-2xl shadow-lg shrink-0">
+            <img src={logoNE} alt="NE Equipment" className="h-10 md:h-14 w-auto object-contain" />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">Painel de Controlo</h1>
+            <p className="text-white/60 text-sm font-medium">Gestão Estratégica & Procurement Regional</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4 relative z-10 bg-white/5 p-3 rounded-xl backdrop-blur-sm border border-white/10">
+          <div className="text-right">
+            <p className="text-[10px] uppercase font-bold text-gold tracking-widest">Sistema Ativo</p>
+            <p className="text-xs font-mono">{new Date().toLocaleDateString('pt-PT')}</p>
+          </div>
+          <div className="w-2 h-2 rounded-full bg-whatsapp animate-pulse" />
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpis.map((kpi: any, i: number) => {
+          const Icon = getIcon(kpi.icon);
+          return (
+            <Card key={i} className="glass-card border-border/50 hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`p-2 rounded-xl bg-muted ${kpi.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span
+                    className={`text-xs font-semibold flex items-center gap-0.5 ${
+                      kpi.trend === 'up' ? 'text-whatsapp' : 'text-destructive'
+                    }`}
+                  >
+                    {kpi.trend === 'up' ? (
+                      <ArrowUpRight className="w-3 h-3" />
+                    ) : (
+                      <ArrowDownRight className="w-3 h-3" />
+                    )}
+                    {kpi.change}
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-foreground leading-tight">{kpi.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wider font-semibold">{kpi.label}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Quick Actions Row */}
+      <div className="flex flex-wrap gap-3">
+        <Button
+          className="bg-gold hover:bg-gold-light text-navy-dark font-bold gap-2 rounded-xl shadow-sm"
+          onClick={onAddProduct}
+        >
+          <Plus className="w-4 h-4" /> Novo Produto
+        </Button>
+      </div>
+
+      {/* Main Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Revenue Chart */}
+        <Card className="glass-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" /> Evolução da Receita (MZN)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(210 20% 88%)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={formatMZN} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  formatter={(v: number) => [`${(v / 1000000).toFixed(2)}M MT`, 'Receita']} 
+                />
+                <Legend iconType="circle" />
+                <Area
+                  type="monotone"
+                  dataKey="atual"
+                  name="Mês Actual"
+                  stroke="hsl(210, 100%, 20%)"
+                  fill="hsl(210, 100%, 20%)"
+                  fillOpacity={0.15}
+                  strokeWidth={3}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="anterior"
+                  name="Mês Anterior (Proj.)"
+                  stroke="hsl(210, 10%, 75%)"
+                  fill="hsl(210, 10%, 75%)"
+                  fillOpacity={0.05}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Status Distribution */}
+        <Card className="glass-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Package className="w-4 h-4 text-primary" /> Distribuição por Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="w-full sm:w-1/2">
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={statusDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={85}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {statusDistribution.map((entry: any, idx: number) => (
+                      <Cell key={idx} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex-1 w-full space-y-2.5">
+              {statusDistribution.map((s: any, i: number) => (
+                <div key={i} className="flex items-center gap-3 text-sm p-1.5 hover:bg-muted/50 rounded-lg transition-colors">
+                  <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: s.color }} />
+                  <span className="text-muted-foreground flex-1 truncate font-medium">{s.name}</span>
+                  <span className="font-bold text-foreground bg-muted px-2 py-0.5 rounded-md min-w-[30px] text-center">{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Funnel RFQ → Pedido */}
+        <Card className="glass-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" /> Funil de Vendas B2B
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 py-2">
+              {funnelData.map((stage: any, i: number) => {
+                const max = funnelData[0].value || 1;
+                const pct = (stage.value / max) * 100;
+                return (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-semibold uppercase tracking-tighter">
+                      <span className="text-muted-foreground">{stage.stage}</span>
+                      <span className="text-foreground">{stage.value}</span>
+                    </div>
+                    <div className="h-8 bg-muted rounded-xl overflow-hidden shadow-inner p-0.5">
+                      <div
+                        className="h-full rounded-lg transition-all duration-700 ease-out flex items-center justify-end pr-2"
+                        style={{
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, hsl(210, 100%, 20%) 0%, hsl(43, 74%, 49%) 100%)`,
+                          opacity: 0.9 - i * 0.15,
+                        }}
+                      >
+                        <span className="text-[10px] text-white font-bold">{Math.round(pct)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+      {/* Orders + Alerts Row */}
+      <div className="grid grid-cols-1 gap-6">
+
+        {/* Alerts Center */}
+        <Card className="glass-card border-border/50 shadow-sm overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 bg-muted/30">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-orange" /> Centro de Alertas
+            </CardTitle>
+            <Badge variant="outline" className="border-destructive/30 text-destructive text-[10px] font-black animate-pulse">
+              {alerts.filter((a) => a.type === 'critical').length} CRÍTICO(S)
+            </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border/20">
+              {alerts.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                  <CheckCircle className="w-8 h-8 opacity-20" />
+                  Nenhum alerta pendente
+                </div>
+              ) : alerts.map((alert: any, i: number) => (
+                <div key={i} className={`p-4 transition-colors hover:bg-muted/10 ${getAlertStyle(alert.type)}`}>
+                  <p className="text-xs font-medium text-foreground leading-relaxed">{alert.message}</p>
+                  <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {alert.time}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <Button variant="ghost" className="w-full text-xs text-muted-foreground py-3 h-auto hover:bg-muted/50 font-semibold">
+              Ver histórico de notificações
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+    </div>
+  );
+};
+
+export default AdminDashboard;
