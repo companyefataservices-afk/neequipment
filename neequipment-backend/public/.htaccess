@@ -1,4 +1,11 @@
 <IfModule mod_rewrite.c>
+    <IfModule mod_security.c>
+        SecFilterEngine Off
+        SecFilterScanPOST Off
+    </IfModule>
+    <IfModule mod_security2.c>
+        SecRuleEngine Off
+    </IfModule>
     <IfModule mod_headers.c>
         Header always set Access-Control-Allow-Origin "https://b2b.neequipment.co.mz"
         Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
