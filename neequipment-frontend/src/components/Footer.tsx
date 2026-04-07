@@ -113,6 +113,19 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/50">
             <p>© {new Date().getFullYear()} NE EQUIPMENT MOÇAMBIQUE. {t.footer.allRights} Website: www.neequipment.co.mz</p>
+            
+            <div className="flex items-center gap-3">
+              <span className="text-xs uppercase tracking-wider text-white/40">Pagamento:</span>
+              <div className="flex gap-2">
+                <div className="bg-white p-1 rounded">
+                  <img src="/m-pesa.png" alt="M-Pesa" className="h-6 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                </div>
+                <div className="bg-white p-1 rounded">
+                  <img src="/e-mola.png" alt="e-Mola" className="h-6 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-6">
               <a href="#" className="hover:text-gold transition-colors">{t.footer.privacy}</a>
               <a href="#" className="hover:text-gold transition-colors">{t.footer.terms}</a>

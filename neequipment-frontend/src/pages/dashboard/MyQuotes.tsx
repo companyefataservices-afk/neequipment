@@ -443,6 +443,20 @@ const MyQuotes = () => {
                           <p className="font-mono">IBAN/NIB: {settings.bank_2_nib}</p>
                         </div>
                       )}
+                      {settings.mpesa_number && (
+                        <div className="space-y-1 bg-white/10 p-2 rounded-lg border-l-2 border-red-500">
+                          <p className="text-red-400 font-bold">M-Pesa</p>
+                          {settings.mpesa_name && <p className="font-mono">Nome: {settings.mpesa_name}</p>}
+                          <p className="font-mono">Número: {settings.mpesa_number}</p>
+                        </div>
+                      )}
+                      {settings.emola_number && (
+                        <div className="space-y-1 bg-white/10 p-2 rounded-lg border-l-2 border-orange-500">
+                          <p className="text-orange-400 font-bold">e-Mola</p>
+                          {settings.emola_name && <p className="font-mono">Nome: {settings.emola_name}</p>}
+                          <p className="font-mono">Número: {settings.emola_number}</p>
+                        </div>
+                      )}
                     </div>
                     <p className="text-[10px] mt-3 text-white/70 italic">
                       * Por favor, envie o comprovativo pelo chat abaixo após a transferência.

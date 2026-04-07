@@ -28,6 +28,10 @@ interface Settings {
   bank_2_name?: string;
   bank_2_account?: string;
   bank_2_nib?: string;
+  mpesa_name?: string;
+  mpesa_number?: string;
+  emola_name?: string;
+  emola_number?: string;
 }
 
 export const generateQuotePDF = (quote: QuoteData, settings: Settings) => {
@@ -218,6 +222,20 @@ export const generateQuotePDF = (quote: QuoteData, settings: Settings) => {
                 <p><strong>${settings.bank_2_name}</strong></p>
                 <p>Conta: ${settings.bank_2_account}</p>
                 <p>NIB/IBAN: ${settings.bank_2_nib}</p>
+              </div>
+            ` : ''}
+            ${settings?.mpesa_number ? `
+              <div class="bank-item" style="border-left: 3px solid #ef4444;">
+                <p><strong style="color:#ef4444;">M-Pesa</strong></p>
+                ${settings.mpesa_name ? `<p>Nome: ${settings.mpesa_name}</p>` : ''}
+                <p>Número: ${settings.mpesa_number}</p>
+              </div>
+            ` : ''}
+            ${settings?.emola_number ? `
+              <div class="bank-item" style="border-left: 3px solid #f97316;">
+                <p><strong style="color:#f97316;">e-Mola</strong></p>
+                ${settings.emola_name ? `<p>Nome: ${settings.emola_name}</p>` : ''}
+                <p>Número: ${settings.emola_number}</p>
               </div>
             ` : ''}
           </div>

@@ -6,7 +6,8 @@ import {
     CheckCircle2, 
     AlertCircle,
     Building2,
-    Search
+    Search,
+    Smartphone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,10 @@ const AdminSettings = () => {
         bank_2_name: '',
         bank_2_account: '',
         bank_2_nib: '',
+        mpesa_name: '',
+        mpesa_number: '',
+        emola_name: '',
+        emola_number: '',
     });
 
     useEffect(() => {
@@ -163,6 +168,76 @@ const AdminSettings = () => {
                                 value={settings.bank_2_nib} 
                                 onChange={e => setSettings({...settings, bank_2_nib: e.target.value})}
                                 placeholder="MQ06..."
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* M-Pesa */}
+                <Card className="border-border shadow-sm">
+                    <CardHeader className="bg-muted/30 pb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-red-500/10 rounded-lg text-red-500">
+                                <Smartphone className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">M-Pesa</CardTitle>
+                                <CardDescription>Recebimentos via M-Pesa.</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="mpesa_name">Nome Registado</Label>
+                            <Input 
+                                id="mpesa_name" 
+                                value={settings.mpesa_name || ''} 
+                                onChange={e => setSettings({...settings, mpesa_name: e.target.value})}
+                                placeholder="Nome da Conta M-Pesa"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="mpesa_number">Número de Telemóvel</Label>
+                            <Input 
+                                id="mpesa_number" 
+                                value={settings.mpesa_number || ''} 
+                                onChange={e => setSettings({...settings, mpesa_number: e.target.value})}
+                                placeholder="84/850000000"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* e-Mola */}
+                <Card className="border-border shadow-sm">
+                    <CardHeader className="bg-muted/30 pb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
+                                <Smartphone className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">e-Mola</CardTitle>
+                                <CardDescription>Recebimentos via e-Mola.</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="emola_name">Nome Registado</Label>
+                            <Input 
+                                id="emola_name" 
+                                value={settings.emola_name || ''} 
+                                onChange={e => setSettings({...settings, emola_name: e.target.value})}
+                                placeholder="Nome da Conta e-Mola"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="emola_number">Número de Telemóvel</Label>
+                            <Input 
+                                id="emola_number" 
+                                value={settings.emola_number || ''} 
+                                onChange={e => setSettings({...settings, emola_number: e.target.value})}
+                                placeholder="86/870000000"
                             />
                         </div>
                     </CardContent>
