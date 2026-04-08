@@ -17,7 +17,7 @@ use App\Http\Controllers\NewsletterController;
 
 // Rotas abertas (não requerem token)
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/signup', [AuthController::class, 'register']);
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 
 Route::get('/products', [ProductController::class, 'index']);

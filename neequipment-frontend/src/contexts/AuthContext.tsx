@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const register = async (data: any) => {
         // A ser implementado no backend
-        const response = await api.post('/register', data);
+        const response = await api.post('/signup', data);
         const { token, user } = response.data;
         localStorage.setItem('auth_token', token);
         setUser(user);
