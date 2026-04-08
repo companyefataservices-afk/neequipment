@@ -118,7 +118,7 @@ const Index = () => {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.3 }}
-            className="pt-32"
+            className="pt-16 md:pt-20"
           >
             <AboutSection />
           </motion.main>
@@ -150,7 +150,7 @@ const Index = () => {
         )}
 
         {currentPage === 'notifications' && (
-          <motion.main key="notifications" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} className="pt-24">
+          <motion.main key="notifications" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} className="pt-16 md:pt-20">
             <Notifications />
           </motion.main>
         )}

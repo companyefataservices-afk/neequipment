@@ -29,8 +29,9 @@ const PaymentMethods = () => {
               key={logo.name}
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="transition-all duration-300"
+              whileHover={{ scale: 1.1, y: -5 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="cursor-pointer"
             >
               <img 
                 src={logo.image} 

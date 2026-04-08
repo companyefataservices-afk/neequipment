@@ -86,7 +86,7 @@ const HeroSection = ({ onQuoteClick }: HeroSectionProps) => {
   ];
 
   return (
-    <section id="home" className="relative pt-32 md:pt-40">
+    <section id="home" className="relative pt-16 md:pt-20">
       <div className="relative min-h-[600px] md:min-h-[700px] overflow-hidden bg-gradient-to-br from-navy-dark via-navy to-navy-light">
         <div className="absolute top-20 left-10 w-72 h-72 bg-gold/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />

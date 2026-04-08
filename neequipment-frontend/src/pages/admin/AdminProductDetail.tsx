@@ -203,9 +203,9 @@ const AdminProductDetail = ({ productId, onBack, onEdit }: AdminProductDetailPro
                                         <p className="flex items-center gap-2 text-sm"><Truck className="w-3 h-3 text-primary" /> Moçambique (2-5 dias úteis)</p>
                                     </div>
                                 </div>
-                                <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100 flex gap-3">
-                                    <Info className="w-5 h-5 text-yellow-600 shrink-0" />
-                                    <p className="text-xs text-yellow-700 leading-relaxed italic">
+                                <div className="p-4 bg-gold/5 rounded-xl border border-gold/10 flex gap-3">
+                                    <Info className="w-5 h-5 text-gold shrink-0" />
+                                    <p className="text-xs text-gold-dark leading-relaxed italic">
                                         Nota Admin: As alterações feitas neste produto reflectem-se instantaneamente no catálogo público para todos os clientes B2B.
                                     </p>
                                 </div>

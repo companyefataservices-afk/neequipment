@@ -52,7 +52,7 @@ export default function AdminQuoteList({ onViewQuote }: AdminQuoteListProps) {
   };
 
   const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+    pending: 'bg-gold/10 text-gold border-gold/20 shadow-sm shadow-gold/5',
     responded: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
     approved: 'bg-green-500/10 text-green-500 border-green-500/20',
     rejected: 'bg-red-500/10 text-red-500 border-red-500/20',

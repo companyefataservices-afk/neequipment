@@ -29,7 +29,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-32 pb-20" ref={ref}>
+    <div className="min-h-screen bg-background pt-16 md:pt-20 pb-20" ref={ref}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>

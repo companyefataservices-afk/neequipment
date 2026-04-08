@@ -18,7 +18,7 @@ const Services = () => {
   ];
 
   return (
-    <div className="pt-32 pb-20 min-h-screen bg-background animate-in fade-in duration-700">
+    <div className="pt-16 md:pt-20 pb-20 min-h-screen bg-background animate-in fade-in duration-700">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <motion.span 

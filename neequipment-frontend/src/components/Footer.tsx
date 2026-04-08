@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useLanguage } from '@/i18n/LanguageContext';
-import logoNE from '@/assets/logo-ne-equipment.png';
+const logoNE = "/logo-ne-equipment.png";
 import api from '@/services/api';
 
 const Footer = () => {

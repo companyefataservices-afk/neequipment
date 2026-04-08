@@ -175,10 +175,10 @@ const ProductDetails = () => {
                         </h1>
 
                         <div className="flex items-center gap-4 mb-6 flex-wrap">
-                            <div className="flex items-center bg-yellow-50 px-2 py-1 rounded">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-500 mr-1" />
-                                <span className="font-bold text-sm text-yellow-700">4.8</span>
-                                <span className="text-xs text-yellow-600/70 ml-1">(12 avaliações)</span>
+                            <div className="flex items-center bg-gold/5 px-2 py-1 rounded-lg border border-gold/10">
+                                <Star className="w-4 h-4 fill-gold text-gold mr-1" />
+                                <span className="font-bold text-sm text-gold-dark">4.8</span>
+                                <span className="text-xs text-gold-dark/60 ml-1">(12 avaliações)</span>
                             </div>
                             <span className="text-sm font-medium text-gray-500">24 vendidos</span>
                         </div>

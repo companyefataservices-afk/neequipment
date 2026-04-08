@@ -100,7 +100,7 @@ const B2BCatalog = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pt-32 pb-20" ref={ref}>
+    <div className="min-h-screen bg-background pt-16 md:pt-20 pb-20" ref={ref}>
       <div className="bg-gradient-to-r from-navy-dark to-navy py-12 mb-8">
         <div className="container mx-auto px-4">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">

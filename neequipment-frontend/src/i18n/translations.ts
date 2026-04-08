@@ -210,6 +210,7 @@ export const translations = {
       subjects: {
         procurement: 'Interesse em Procurement',
         quote: 'Pedido de Cotação',
+        transport: 'Logística e Transporte',
         partnership: 'Parceria Comercial',
         other: 'Outro',
       },
@@ -531,6 +532,7 @@ export const translations = {
       subjects: {
         procurement: 'Procurement Interest',
         quote: 'Quote Request',
+        transport: 'Logistics and Transport',
         partnership: 'Commercial Partnership',
         other: 'Other',
       },

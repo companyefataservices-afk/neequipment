@@ -17,7 +17,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/i18n/LanguageContext';
-import logoNE from '@/assets/logo-ne-equipment.png';
+const logoNE = "/logo-ne-equipment.png";
 
 type PageType = 'home' | 'about' | 'b2b' | 'services' | 'contact' | 'dashboard' | 'notifications';
 
@@ -52,46 +52,8 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
-      {/* Top bar */}
-      <div className="bg-navy-dark py-2 px-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <p className="text-xs md:text-sm text-white/70 italic font-light hidden md:block">
-            {t.header.quote}
-          </p>
-          <div className="flex items-center gap-4 md:gap-6 text-xs text-white/70 ml-auto">
-            <a href="tel:+258843114354" className="flex items-center gap-1 hover:text-gold transition-colors">
-              <Phone className="w-3 h-3" />
-              <span className="hidden sm:inline">+258 84 311 4354</span>
-            </a>
-            <a href="mailto:sales@neequipment.co.mz" className="flex items-center gap-1 hover:text-gold transition-colors">
-              <Mail className="w-3 h-3" />
-              <span className="hidden sm:inline">sales@neequipment.co.mz</span>
-            </a>
-
-            {/* Language Toggle */}
-            <div className="flex items-center gap-1 border-l border-white/20 pl-4">
-              <button
-                onClick={() => setLanguage('PT')}
-                className={`text-xs font-medium transition-colors ${language === 'PT' ? 'text-gold' : 'text-white/60 hover:text-white'}`}
-              >
-                PT
-              </button>
-              <span className="text-white/40">/</span>
-              <button
-                onClick={() => setLanguage('EN')}
-                className={`text-xs font-medium transition-colors ${language === 'EN' ? 'text-gold' : 'text-white/60 hover:text-white'}`}
-              >
-                EN
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main navigation */}
-      <div className="glass border-b border-border/50">
-        <div className="container mx-auto px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
+      <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             <button onClick={() => onNavigate('home')} className="flex items-center gap-3">
               <img src={logoNE} alt="NE Equipment" className="h-12 md:h-14 w-auto" />
@@ -149,6 +111,23 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                   <span>{language === 'PT' ? 'Entrar' : 'Login'}</span>
                 </button>
               )}
+
+              {/* Language Toggle */}
+              <div className="flex items-center gap-1.5 border-r border-border/50 pr-3 mr-1">
+                <button
+                  onClick={() => setLanguage('PT')}
+                  className={`text-[11px] font-bold transition-colors ${language === 'PT' ? 'text-gold' : 'text-navy-dark/60 hover:text-gold'}`}
+                >
+                  PT
+                </button>
+                <span className="text-navy-dark/20 text-[10px]">|</span>
+                <button
+                  onClick={() => setLanguage('EN')}
+                  className={`text-[11px] font-bold transition-colors ${language === 'EN' ? 'text-gold' : 'text-navy-dark/60 hover:text-gold'}`}
+                >
+                  EN
+                </button>
+              </div>
 
               <NotificationBell />
 
@@ -261,7 +240,6 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
-            </div>
           </div>
         </div>
       </div>
