@@ -9,10 +9,10 @@ const PaymentMethods = () => {
   const { t, language } = useLanguage();
 
   const paymentLogos = [
-    { name: 'M-Pesa', image: 'https://www.enmedhealth.co.mz/_next/image?url=%2Fmpesa.png&w=64&q=75' },
-    { name: 'E-Mola', image: 'https://www.enmedhealth.co.mz/_next/image?url=%2Femola.png&w=64&q=75' },
-    { name: 'Visa', image: 'https://www.enmedhealth.co.mz/_next/image?url=%2Fvisa.png&w=64&q=75' },
-    { name: 'Mastercard', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png' }
+    { name: 'M-Pesa', image: '/logos/mpesa.png' },
+    { name: 'E-Mola', image: '/logos/emola.png' },
+    { name: 'Visa', image: '/logos/visa.png' },
+    { name: 'Mastercard', image: '/logos/mastercard.png' }
   ];
 
   return (
