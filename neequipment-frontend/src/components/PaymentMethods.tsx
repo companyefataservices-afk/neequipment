@@ -24,7 +24,7 @@ const PaymentMethods = () => {
           initial={{ opacity: 0, y: 20 }} 
           animate={isInView ? { opacity: 1, y: 0 } : {}} 
           transition={{ duration: 0.6 }} 
-          className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-60 hover:opacity-100 transition-opacity duration-500"
+          className="flex flex-wrap items-center justify-center gap-8 md:gap-16 transition-opacity duration-500"
         >
           {paymentLogos.map((logo, index) => (
             <motion.div
@@ -32,7 +32,7 @@ const PaymentMethods = () => {
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="grayscale hover:grayscale-0 transition-all duration-300"
+              className="transition-all duration-300"
             >
               <img 
                 src={logo.image} 
