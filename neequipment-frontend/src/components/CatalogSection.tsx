@@ -89,14 +89,6 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
               </Button>
             </div>
           )}
-          {user && (
-            <div className="mb-8 p-4 glass-card bg-navy-dark/5">
-              <p className="text-center text-sm text-muted-foreground">
-                <Lock className="w-4 h-4 inline mr-2" />
-                {t.catalog.b2bNotice}
-              </p>
-            </div>
-          )}
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="w-8 h-8 animate-spin text-gold" />
