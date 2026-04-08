@@ -6,33 +6,32 @@ import { useLanguage } from '@/i18n/LanguageContext';
 const PaymentMethods = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const paymentMethods = [
     { 
-      region: "Moçambique", 
+      region: language === 'PT' ? "Móvel & Carteiras" : "Mobile & Wallets", 
       color: 'gold',
       methods: [
-        { name: 'M-Pesa', image: 'https://logospng.org/download/m-pesa/m-pesa-4096.png' },
+        { name: 'M-Pesa', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/M-Pesa_Logo.svg/1200px-M-Pesa_Logo.svg.png' },
         { name: 'E-Mola', image: 'https://seeklogo.com/images/E/e-mola-logo-30646D08BE-seeklogo.com.png' },
-        { name: 'Ponto de Venda (POS)', image: 'https://cdn-icons-png.flaticon.com/512/5163/5163777.png' }
+        { name: 'Visa', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/d1/Visa_2014_logo_detail.svg/2560px-Visa_2014_logo_detail.svg.png' }
       ]
     },
     { 
-      region: "Transferência Bancária", 
+      region: language === 'PT' ? "Bancos Moçambique" : "Mozambique Banks", 
       color: 'gold',
       methods: [
-        { name: 'Millennium bim', image: 'https://logospng.org/download/millennium-bim/millennium-bim-4096.png' },
-        { name: 'BCI', image: 'https://bci.co.mz/wp-content/uploads/2021/04/bci_logo.png' },
-        { name: 'Standard Bank', image: 'https://logospng.org/download/standard-bank/standard-bank-4096.png' }
+        { name: 'Millennium bim', image: 'https://logospng.org/download/millennium-bim/millennium-bim.png' },
+        { name: 'Standard Bank', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Standard_Bank_logo.svg/2560px-Standard_Bank_logo.svg.png' }
       ]
     },
     { 
-      region: "Soluções B2B", 
+      region: "B2B Solutions", 
       color: 'navy',
       methods: [
-        { name: 'Faturação (30 dias)', image: 'https://cdn-icons-png.flaticon.com/512/2933/2933116.png' },
-        { name: 'Condições Comerciais Flexíveis', image: 'https://cdn-icons-png.flaticon.com/512/1055/1055644.png' }
+        { name: 'Invoiceing', image: 'https://cdn-icons-png.flaticon.com/512/2933/2933116.png' },
+        { name: 'B2B Terms', image: 'https://cdn-icons-png.flaticon.com/512/1055/1055644.png' }
       ]
     },
   ];
@@ -51,19 +50,18 @@ const PaymentMethods = () => {
           {paymentMethods.map((payment, index) => (
             <motion.div key={payment.region} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: index * 0.1 }} className={`p-8 rounded-2xl backdrop-blur-xl ${payment.color === 'gold' ? 'bg-gold/10 border border-gold/30' : 'bg-white/5 border border-white/20'}`}>
               <h3 className="text-xl font-bold text-white mb-6 text-center">{payment.region}</h3>
-              <ul className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
                 {payment.methods.map((method) => (
-                  <li key={method.name} className="bg-white rounded-xl p-3 flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 shadow-md">
+                  <div key={method.name} className="bg-white rounded-xl p-4 flex items-center justify-center transition-transform hover:scale-105 shadow-md h-20">
                     <img 
                       src={method.image} 
                       alt={`${method.name} logo`} 
-                      className={`object-contain ${method.name === 'Faturação (30 dias)' || method.name === 'Condições Comerciais Flexíveis' || method.name === 'Ponto de Venda (POS)' ? 'w-10 h-10 opacity-80' : 'w-24 h-12'}`}
+                      className={`object-contain max-h-full max-w-full ${method.name === 'Invoiceing' || method.name === 'B2B Terms' ? 'w-10 h-10 opacity-70' : 'w-28'}`}
                       loading="lazy"
                     />
-                    <span className="text-sm font-semibold text-navy-dark text-center">{method.name}</span>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           ))}
         </div>

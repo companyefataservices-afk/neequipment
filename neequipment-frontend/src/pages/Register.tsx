@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, AlertCircle, ArrowLeft, User, Phone } from 'lucide-react';
+import { Mail, Lock, AlertCircle, ArrowLeft, User, Phone, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { toast } from 'sonner';
 
@@ -17,6 +17,8 @@ const Register = () => {
         password_confirmation: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const { register } = useAuth();
     const navigate = useNavigate();
@@ -162,13 +164,20 @@ const Register = () => {
                                 <Input
                                     id="password"
                                     name="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     required
-                                    className="pl-10"
+                                    className="pl-10 pr-10"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
                             </div>
                         </div>
 
@@ -181,13 +190,20 @@ const Register = () => {
                                 <Input
                                     id="password_confirmation"
                                     name="password_confirmation"
-                                    type="password"
+                                    type={showConfirmPassword ? "text" : "password"}
                                     required
-                                    className="pl-10"
+                                    className="pl-10 pr-10"
                                     placeholder="••••••••"
                                     value={formData.password_confirmation}
                                     onChange={handleChange}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 transition-colors"
+                                >
+                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
                             </div>
                         </div>
 
