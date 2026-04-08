@@ -4,6 +4,8 @@ return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
+        'https://neequipment.co.mz',
+        'https://www.neequipment.co.mz',
         'https://b2b.neequipment.co.mz',
         'http://localhost:5173', // Para desenvolvimento local (Vite)
         'http://localhost:3000'   // Alternativa local

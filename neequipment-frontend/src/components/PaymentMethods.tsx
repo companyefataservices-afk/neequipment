@@ -1,7 +1,6 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { Smartphone, CreditCard, Globe, Building2, Shield } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { Shield } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const PaymentMethods = () => {
@@ -10,9 +9,32 @@ const PaymentMethods = () => {
   const { t } = useLanguage();
 
   const paymentMethods = [
-    { region: t.payment.regions.mozambique, icon: Smartphone, methods: ['M-Pesa', 'E-Mola', 'POS'], color: 'gold' },
-    { region: t.payment.regions.international, icon: Globe, methods: [t.payment.methods.bankTransfer], color: 'gold' },
-    { region: t.payment.regions.b2b, icon: Building2, methods: [t.payment.methods.billing, t.payment.methods.commercialTerms], color: 'navy' },
+    { 
+      region: "Moçambique", 
+      color: 'gold',
+      methods: [
+        { name: 'M-Pesa', image: 'https://logospng.org/download/m-pesa/m-pesa-4096.png' },
+        { name: 'E-Mola', image: 'https://seeklogo.com/images/E/e-mola-logo-30646D08BE-seeklogo.com.png' },
+        { name: 'Ponto de Venda (POS)', image: 'https://cdn-icons-png.flaticon.com/512/5163/5163777.png' }
+      ]
+    },
+    { 
+      region: "Transferência Bancária", 
+      color: 'gold',
+      methods: [
+        { name: 'Millennium bim', image: 'https://logospng.org/download/millennium-bim/millennium-bim-4096.png' },
+        { name: 'BCI', image: 'https://bci.co.mz/wp-content/uploads/2021/04/bci_logo.png' },
+        { name: 'Standard Bank', image: 'https://logospng.org/download/standard-bank/standard-bank-4096.png' }
+      ]
+    },
+    { 
+      region: "Soluções B2B", 
+      color: 'navy',
+      methods: [
+        { name: 'Faturação (30 dias)', image: 'https://cdn-icons-png.flaticon.com/512/2933/2933116.png' },
+        { name: 'Condições Comerciais Flexíveis', image: 'https://cdn-icons-png.flaticon.com/512/1055/1055644.png' }
+      ]
+    },
   ];
 
   return (
@@ -25,18 +47,20 @@ const PaymentMethods = () => {
           <p className="text-white/70">{t.payment.subtitle}</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {paymentMethods.map((payment, index) => (
-            <motion.div key={payment.region} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: index * 0.1 }} className={`p-6 rounded-2xl backdrop-blur-xl ${payment.color === 'gold' ? 'bg-gold/10 border border-gold/30' : 'bg-white/5 border border-white/20'}`}>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${payment.color === 'gold' ? 'bg-gold/20' : 'bg-white/10'}`}>
-                <payment.icon className={`w-6 h-6 ${payment.color === 'gold' ? 'text-gold' : 'text-white'}`} />
-              </div>
-              <h3 className="font-bold text-white mb-3">{payment.region}</h3>
-              <ul className="space-y-2">
+            <motion.div key={payment.region} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: index * 0.1 }} className={`p-8 rounded-2xl backdrop-blur-xl ${payment.color === 'gold' ? 'bg-gold/10 border border-gold/30' : 'bg-white/5 border border-white/20'}`}>
+              <h3 className="text-xl font-bold text-white mb-6 text-center">{payment.region}</h3>
+              <ul className="space-y-4">
                 {payment.methods.map((method) => (
-                  <li key={method} className="text-sm text-white/70 flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${payment.color === 'gold' ? 'bg-gold' : 'bg-white/50'}`} />
-                    {method}
+                  <li key={method.name} className="bg-white rounded-xl p-3 flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 shadow-md">
+                    <img 
+                      src={method.image} 
+                      alt={`${method.name} logo`} 
+                      className={`object-contain ${method.name === 'Faturação (30 dias)' || method.name === 'Condições Comerciais Flexíveis' || method.name === 'Ponto de Venda (POS)' ? 'w-10 h-10 opacity-80' : 'w-24 h-12'}`}
+                      loading="lazy"
+                    />
+                    <span className="text-sm font-semibold text-navy-dark text-center">{method.name}</span>
                   </li>
                 ))}
               </ul>
