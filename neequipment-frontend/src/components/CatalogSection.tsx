@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { Lock, ArrowRight, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ interface CatalogSectionProps {
 }
 
 const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { t, language } = useLanguage();
@@ -77,7 +79,7 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
                 {t.catalog.b2bNotice}
               </p>
               <Button 
-                onClick={() => window.location.href = '/login'} 
+                onClick={() => navigate('/login')} 
                 variant="outline" 
                 size="sm" 
                 className="gap-2 border-gold text-navy-dark hover:bg-gold hover:text-navy-dark font-bold rounded-xl"

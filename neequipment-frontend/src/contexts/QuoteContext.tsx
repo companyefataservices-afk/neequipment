@@ -52,7 +52,7 @@ export const QuoteProvider = ({ children }: { children: ReactNode }) => {
       }
     } else {
       toast.info('Por favor, inicie sessão ou registe-se para solicitar uma cotação.');
-      navigate('/register', { state: { from: { pathname: '/dashboard' } } });
+      navigate('/signup', { state: { from: { pathname: '/dashboard' } } });
     }
   };
 

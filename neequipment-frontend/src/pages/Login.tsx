@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,10 +13,10 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const { login, user: authUser } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const { t, language } = useLanguage();
+    const { language } = useLanguage();
 
     const from = location.state?.from?.pathname;
 
@@ -70,7 +70,7 @@ const Login = () => {
                 </h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
                     {language === 'PT' ? 'Ou' : 'Or'}{' '}
-                    <Link to="/register" state={{ from: location.state?.from }} className="font-medium text-gold hover:text-gold-light transition-colors">
+                    <Link to="/signup" state={{ from: location.state?.from }} className="font-medium text-gold hover:text-gold-light transition-colors">
                         {language === 'PT' ? 'crie uma nova conta' : 'create a new account'}
                     </Link>
                 </p>

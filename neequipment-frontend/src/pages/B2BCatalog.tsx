@@ -117,7 +117,7 @@ const B2BCatalog = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-64 bg-white/10 border-white/20 text-white placeholder:text-white/50 rounded-xl"
               />
-              <Button onClick={() => navigate('/register')} className="bg-gold hover:bg-gold-light text-navy-dark font-bold rounded-xl">{t.b2bCatalog.registerCompany}</Button>
+              <Button onClick={() => navigate('/signup')} className="bg-gold hover:bg-gold-light text-navy-dark font-bold rounded-xl">{t.b2bCatalog.registerCompany}</Button>
             </motion.div>
           </div>
         </div>
