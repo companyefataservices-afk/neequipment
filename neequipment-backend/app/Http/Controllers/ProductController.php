@@ -9,6 +9,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
+use App\Notifications\ProductPendingApproval;
+use App\Notifications\ProductPublished;
 
 class ProductController extends Controller
 {
@@ -21,11 +25,15 @@ class ProductController extends Controller
             $query = Product::with('images', 'category');
 
             // For debugging purposes, we will show all products.
-            if (!$request->user() || $request->user()->role !== 'admin') {
-                // If is_approved column exists, we can use it, otherwise don't filter
-                if (Schema::hasColumn('products', 'is_approved')) {
-                    $query->where('is_approved', true)->orWhere('is_approved', false);
-                }
+            // Lógica de visibilidade
+            if (!$request->user() || (!$request->user()->isAdmin() && !$request->user()->isSuperAdmin())) {
+                $user = $request->user();
+                $query->where(function($q) use ($user) {
+                    $q->where('is_approved', true);
+                    if ($user) {
+                        $q->orWhere('created_by', $user->id);
+                    }
+                });
             }
 
             if ($request->has('search')) {
@@ -62,10 +70,22 @@ class ProductController extends Controller
         ]);
 
         return DB::transaction(function () use ($request) {
+            $user = $request->user();
+
+            // Verificar se o utilizador tem permissão para esta categoria
+            if ($user && !$user->hasCategory($request->category_id)) {
+                return response()->json(['message' => 'Não tem permissão para adicionar produtos nesta categoria.'], 403);
+            }
+
             $productData = $request->except('images');
             $productData['slug'] = Str::slug($request->name) . '-' . uniqid();
             $productData['sku'] = $request->sku ?: null;
+            $productData['created_by'] = $user ? $user->id : null;
             
+            // Apenas Admins ou SuperAdmins podem publicar diretamente
+            $canPublish = $user && ($user->isAdmin() || $user->isSuperAdmin());
+            $productData['is_approved'] = $canPublish ? ($request->is_approved ?? false) : false;
+
             $product = Product::create($productData);
 
             if ($request->hasFile('images')) {
@@ -78,6 +98,12 @@ class ProductController extends Controller
                         'is_primary' => $index === 0,
                     ]);
                 }
+            }
+            
+            // Notificar Administradores se o produto precisar de aprovação
+            if (!$product->is_approved) {
+                $admins = User::where('role', 'admin')->orWhere('is_superadmin', true)->get();
+                Notification::send($admins, new ProductPendingApproval($product));
             }
 
             return response()->json($product->load('images', 'category'), 201);
@@ -117,11 +143,49 @@ class ProductController extends Controller
         ]);
 
         return DB::transaction(function () use ($request, $product) {
-            $updateData = $request->except(['images', 'remove_images']);
+            $user = $request->user();
+
+            // Verificar se o utilizador tem permissão para a categoria (se for alterada)
+            $newCategoryId = $request->input('category_id', $product->category_id);
+            if ($user && !$user->hasCategory($newCategoryId)) {
+                return response()->json(['message' => 'Não tem permissão para gerir produtos nesta categoria.'], 403);
+            }
+
+            // Verificar se o utilizador pode editar este produto especificamente (se não for admin)
+            if ($user && !$user->isAdmin() && !$user->isSuperAdmin() && $product->created_by !== $user->id) {
+                return response()->json(['message' => 'Não tem permissão para editar este produto.'], 403);
+            }
+
+            $updateData = $request->except(['images', 'remove_images', 'is_approved', 'approved_by']);
+            
+            $wasApproved = $product->is_approved;
+
+            // Apenas Admins podem alterar o estado de aprovação
+            if ($request->has('is_approved') && $user && ($user->isAdmin() || $user->isSuperAdmin())) {
+                $updateData['is_approved'] = $request->is_approved;
+                if ($request->is_approved && !$wasApproved) {
+                    $updateData['approved_by'] = $user->id;
+                }
+            }
+
+            // Se um colaborador editar, o produto deve voltar para aprovação? 
+            // Seguindo a lógica de segurança, se não for admin, forçamos pendente novamente
+            if ($user && !$user->isAdmin() && !$user->isSuperAdmin()) {
+                $updateData['is_approved'] = false;
+            }
+
             if ($request->has('sku')) {
                 $updateData['sku'] = $request->sku ?: null;
             }
             $product->update($updateData);
+
+            // Trigger notificações de estado
+            if (!$product->is_approved && ($wasApproved || $product->wasRecentlyCreated)) {
+                $admins = User::where('role', 'admin')->orWhere('is_superadmin', true)->get();
+                Notification::send($admins, new ProductPendingApproval($product));
+            } elseif ($product->is_approved && !$wasApproved && $product->creator) {
+                $product->creator->notify(new ProductPublished($product));
+            }
 
             // Remove selected images
             if ($request->has('remove_images')) {
@@ -163,9 +227,15 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $product = Product::findOrFail($id);
+        $user = $request->user();
+
+        // Só pode apagar se for admin ou o criador
+        if ($user && !$user->isAdmin() && !$user->isSuperAdmin() && $product->created_by !== $user->id) {
+            return response()->json(['message' => 'Não tem permissão para remover este produto.'], 403);
+        }
 
         return DB::transaction(function () use ($product) {
             foreach ($product->images as $image) {
@@ -175,5 +245,33 @@ class ProductController extends Controller
             $product->delete();
             return response()->json(['message' => 'Produto removido com sucesso.']);
         });
+    }
+
+    /**
+     * Approve a product (Admins only)
+     */
+    public function approve(Request $request, string $id)
+    {
+        $user = $request->user();
+        if (!$user || (!$user->isAdmin() && !$user->isSuperAdmin())) {
+            return response()->json(['message' => 'Apenas administradores podem aprovar produtos.'], 403);
+        }
+
+        $product = Product::findOrFail($id);
+        $wasAlreadyApproved = $product->is_approved;
+
+        $product->update([
+            'is_approved' => true,
+            'approved_by' => $user->id
+        ]);
+
+        if (!$wasAlreadyApproved && $product->creator) {
+            $product->creator->notify(new ProductPublished($product));
+        }
+
+        return response()->json([
+            'message' => 'Produto aprovado e publicado com sucesso.',
+            'product' => $product->load('images', 'category')
+        ]);
     }
 }

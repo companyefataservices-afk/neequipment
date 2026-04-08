@@ -69,19 +69,57 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    /**
+     * Get the team for the user
+     */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
     protected function casts(): array
-
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_superadmin' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 
+    /**
+     * Helper to check if user is a superadmin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_superadmin === true;
+    }
+
+    /**
+     * Helper to check if user is a regular admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Helper to check if user is a collaborator
+     */
+    public function isCollaborator(): bool
+    {
+        return $this->role === 'collaborator';
+    }
+
+    /**
+     * Check if user has access to a specific category
+     */
+    public function hasCategory(int $categoryId): bool
+    {
+        if ($this->isSuperAdmin() || $this->isAdmin()) {
+            return true;
+        }
+
+        return $this->categories()->where('category_id', $categoryId)->exists();
+    }
 }

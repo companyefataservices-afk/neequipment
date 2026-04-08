@@ -20,6 +20,7 @@ class Product extends Model
         'category_id',
         'is_approved',
         'approved_by',
+        'created_by',
     ];
 
     protected $casts = [
@@ -32,6 +33,11 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function approvedBy()

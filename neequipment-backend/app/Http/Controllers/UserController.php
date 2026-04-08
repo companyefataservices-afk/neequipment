@@ -58,7 +58,7 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'nullable|string|max:20',
-                'role' => 'required|string|in:admin,customer',
+                'role' => 'required|string|in:admin,customer,collaborator',
                 'is_superadmin' => 'nullable|boolean',
                 'password' => 'required|string|min:6',
                 'assigned_category_id' => 'nullable|exists:categories,id',

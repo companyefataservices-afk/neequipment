@@ -11,9 +11,19 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Category::withCount('products')->get());
+        $user = $request->user();
+        $query = Category::withCount('products');
+
+        // Se for um colaborador autenticado, filtramos pelas categorias alocadas
+        if ($user && $user->role === 'collaborator' && !$user->is_superadmin) {
+            $query->whereHas('users', function($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        }
+
+        return response()->json($query->get());
     }
 
     /**
