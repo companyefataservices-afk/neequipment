@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/services/api';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 interface CatalogSectionProps {
   onNavigateB2B?: () => void;
@@ -38,7 +39,7 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
           let coverImage = '/logo-ne-equipment.png'; // fallback local logótipo
           if (firstProductWithImage) {
             const imgPath = firstProductWithImage.images.find((i: any) => i.is_primary)?.image_path || firstProductWithImage.images[0].image_path;
-            coverImage = `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${imgPath}`;
+            coverImage = getProductImageUrl(imgPath);
           }
 
           return {

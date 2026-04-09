@@ -32,6 +32,23 @@ Route::get('/health-check', function() {
     return response()->json(['status' => 'ok', 'message' => 'API is reachable']);
 });
 
+// Rota de Fallback para as imagens (especialmente útil no cPanel se o link simbólico falhar)
+Route::get('/storage/{path}', function($path) {
+    try {
+        $path = storage_path('app/public/' . $path);
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'Arquivo não encontrado: ' . $path], 404);
+        }
+        
+        $file = file_get_contents($path);
+        $type = mime_content_type($path);
+        
+        return response($file)->header('Content-Type', $type);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->where('path', '.*');
+
 // Outra rota para debug completo (opcional)
 Route::get('/debug-check', function() {
     try {
@@ -39,6 +56,9 @@ Route::get('/debug-check', function() {
             'status' => 'ok',
             'database' => DB::connection()->getDatabaseName(),
             'user_count' => \App\Models\User::count(),
+            'public_path' => public_path(),
+            'storage_path' => storage_path(),
+            'storage_link_exists' => file_exists(public_path('storage')),
         ];
     } catch (\Exception $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);

@@ -23,6 +23,7 @@ import {
 import api from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 interface Category {
     id: number;
@@ -284,7 +285,7 @@ const ProductForm = ({ product, onSuccess, onCancel }: ProductFormProps) => {
                             {existingImages.filter(img => !imagesToRemove.includes(img.id)).map((img) => (
                                 <div key={img.id} className="relative aspect-square rounded-lg border overflow-hidden group">
                                     <img
-                                        src={img.image_path?.startsWith('data:image') || img.image_path?.startsWith('http') ? img.image_path : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${img.image_path}`}
+                                        src={getProductImageUrl(img.image_path)}
                                         className="w-full h-full object-cover"
                                     />
                                     <button

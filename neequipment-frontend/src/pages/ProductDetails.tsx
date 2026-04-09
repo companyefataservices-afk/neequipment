@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import api from '@/services/api';
 import { useQuote } from '@/contexts/QuoteContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 
 
@@ -89,7 +90,7 @@ const ProductDetails = () => {
     }
 
     const images = product.images?.length
-        ? product.images.map(img => img.image_path?.startsWith('data:image') || img.image_path?.startsWith('http') ? img.image_path : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${img.image_path}`)
+        ? product.images.map(img => getProductImageUrl(img.image_path))
         : ['/placeholder-product.png'];
 
     const handleAddToCart = (openForm = false) => {

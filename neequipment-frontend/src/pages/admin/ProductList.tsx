@@ -13,6 +13,7 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProductImageUrl } from '@/utils/imageUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -173,7 +174,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                             <div className="w-10 h-10 rounded bg-muted flex items-center justify-center overflow-hidden shrink-0 border border-border">
                                                 {product.images && product.images.length > 0 ? (
                                                     <img
-                                                        src={(() => { const p = product.images.find(img => img.is_primary)?.image_path || product.images[0].image_path; return p?.startsWith('data:image') || p?.startsWith('http') ? p : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${p}`; })()}
+                                                        src={getProductImageUrl(product.images.find(img => img.is_primary)?.image_path || product.images[0].image_path)}
                                                         alt={product.name}
                                                         className="w-full h-full object-cover"
                                                     />

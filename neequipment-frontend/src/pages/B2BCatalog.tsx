@@ -12,6 +12,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import api from '@/services/api';
 import { useQuote } from '@/contexts/QuoteContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 // We will fetch categories dynamically from the backend
 interface Product {
@@ -210,9 +211,7 @@ const B2BCatalog = () => {
                 </div>
               ) : filteredProducts.map((product, index) => {
                 const primaryImage = product.images?.find(img => img.is_primary)?.image_path || product.images?.[0]?.image_path;
-                const imageUrl = primaryImage
-                  ? (primaryImage.startsWith('data:image') || primaryImage.startsWith('http') ? primaryImage : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${primaryImage}`)
-                  : '/placeholder-product.png';
+                const imageUrl = getProductImageUrl(primaryImage);
 
                 if (viewMode === 'list') {
                   return (
