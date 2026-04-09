@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import api from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Category {
     id: number;
@@ -43,6 +44,7 @@ interface Product {
     stock_quantity: number;
     category_id: number;
     images?: ProductImage[];
+    is_approved?: boolean;
 }
 
 interface ProductFormProps {
@@ -56,6 +58,9 @@ const ProductForm = ({ product, onSuccess, onCancel }: ProductFormProps) => {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
+    const { user: currentUser } = useAuth();
+
+    const isColaborador = !currentUser?.is_superadmin && ((currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -65,6 +70,7 @@ const ProductForm = ({ product, onSuccess, onCancel }: ProductFormProps) => {
         sku: product?.sku || '',
         stock_quantity: product?.stock_quantity || 0,
         category_id: product?.category_id?.toString() || '',
+        is_approved: product?.is_approved ? '1' : '0',
     });
 
     const [newImages, setNewImages] = useState<File[]>([]);
@@ -256,6 +262,18 @@ const ProductForm = ({ product, onSuccess, onCancel }: ProductFormProps) => {
                                 required
                             />
                         </div>
+                        {!isColaborador && (
+                            <div className="flex items-center justify-between mt-4 p-4 border rounded-lg bg-muted/30">
+                                <div className="space-y-0.5">
+                                    <Label className="text-base font-bold text-green-700">Aprovar e Publicar Imediatamente</Label>
+                                    <p className="text-xs text-muted-foreground">O produto ficará visível no catálogo logo após guardar.</p>
+                                </div>
+                                <Switch
+                                    checked={formData.is_approved === '1'}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, is_approved: checked ? '1' : '0' })}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Imagens */}

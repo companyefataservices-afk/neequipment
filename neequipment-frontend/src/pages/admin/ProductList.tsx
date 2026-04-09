@@ -9,8 +9,10 @@ import {
     Image as ImageIcon,
     AlertCircle,
     Loader2,
-    Eye
+    Eye,
+    CheckCircle2
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +38,7 @@ interface Product {
         image_path: string;
         is_primary: boolean;
     }[];
+    is_approved?: boolean;
 }
 
 interface ProductListProps {
@@ -49,8 +52,9 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const { toast } = useToast();
+    const { user: currentUser } = useAuth();
 
-
+    const isColaborador = !currentUser?.is_superadmin && ((currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
     const fetchProducts = async () => {
         try {
             setIsLoading(true);
@@ -86,6 +90,23 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
             toast({
                 title: "Erro",
                 description: "Não foi possível eliminar o produto.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const handleApprove = async (id: number) => {
+        try {
+            await api.post(`/admin/products/${id}/approve`);
+            toast({
+                title: "Sucesso",
+                description: "Produto aprovado e publicado com sucesso.",
+            });
+            fetchProducts();
+        } catch (error: any) {
+            toast({
+                title: "Erro",
+                description: error.response?.data?.message || "Não foi possível aprovar o produto.",
                 variant: "destructive"
             });
         }
@@ -139,6 +160,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                             <tr>
                                 <th className="px-6 py-4 font-bold">Produto</th>
                                 <th className="px-6 py-4 font-bold">Categoria</th>
+                                <th className="px-6 py-4 font-bold">Estado</th>
                                 <th className="px-6 py-4 font-bold">Stock</th>
                                 <th className="px-6 py-4 font-bold text-right">Acções</th>
                             </tr>
@@ -170,6 +192,17 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                             {product.category?.name || 'Geral'}
                                         </Badge>
                                     </td>
+                                    <td className="px-6 py-4">
+                                        {product.is_approved ? (
+                                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold">
+                                                Publicado
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-none font-bold">
+                                                Pendente
+                                            </Badge>
+                                        )}
+                                    </td>
                                     <td className="px-6 py-4 font-medium">
                                         <span className={product.stock_quantity < 5 ? 'text-destructive flex items-center gap-1 font-bold' : ''}>
                                             {product.stock_quantity}
@@ -183,7 +216,12 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                                     <MoreVertical className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40">
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                {!product.is_approved && !isColaborador && (
+                                                    <DropdownMenuItem onClick={() => handleApprove(product.id)} className="gap-2 font-bold text-green-600 focus:text-green-600 focus:bg-green-50">
+                                                        <CheckCircle2 className="w-4 h-4" /> Aprovar e Publicar
+                                                    </DropdownMenuItem>
+                                                )}
                                                 <DropdownMenuItem onClick={() => onViewProduct(product.id)} className="gap-2">
                                                     <Eye className="w-4 h-4 text-primary" /> Visualizar Detalhes
                                                 </DropdownMenuItem>

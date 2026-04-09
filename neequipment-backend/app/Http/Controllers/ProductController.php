@@ -24,22 +24,43 @@ class ProductController extends Controller
         try {
             $query = Product::with('images', 'category');
 
-            // For debugging purposes, we will show all products.
-            // Lógica de visibilidade
-            if (!$request->user() || (!$request->user()->isAdmin() && !$request->user()->isSuperAdmin())) {
-                $user = $request->user();
-                $query->where(function($q) use ($user) {
-                    $q->where('is_approved', true);
-                    if ($user) {
-                        $q->orWhere('created_by', $user->id);
+            $user = $request->user();
+            
+            // Check if user is collaborator
+            $isColaborador = $user && !$user->is_superadmin && (
+                (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+                || $user->assigned_category_id
+            );
+            
+            // Administradores genuínos veem tudo
+            $isGenuineAdmin = $user && !$isColaborador;
+
+            if (!$isGenuineAdmin) {
+                // Visitantes públicos e Clientes veem apenas produtos aprovados
+                if (!$user || $user->role === 'customer') {
+                    $query->where('is_approved', true);
+                } 
+                // Colaboradores veem apenas produtos das suas categorias (aprovados ou pendentes criados por eles)
+                else if ($isColaborador) {
+                    $categoryIds = [];
+                    if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                        $categoryIds = $user->categories()->pluck('categories.id')->toArray();
                     }
-                });
+                    if ($user->assigned_category_id) {
+                        $categoryIds[] = $user->assigned_category_id;
+                    }
+                    
+                    if (!empty($categoryIds)) {
+                        $query->whereIn('category_id', $categoryIds);
+                    }
+                }
             }
 
             if ($request->has('search')) {
                 $query->where(function($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
-                      ->orWhere('description', 'like', '%' . $request->search . '%');
+                      ->orWhere('description', 'like', '%' . $request->search . '%')
+                      ->orWhere('sku', 'like', '%' . $request->search . '%');
                 });
             }
 
@@ -82,9 +103,14 @@ class ProductController extends Controller
             $productData['sku'] = $request->sku ?: null;
             $productData['created_by'] = $user ? $user->id : null;
             
-            // Apenas Admins ou SuperAdmins podem publicar diretamente
-            $canPublish = $user && ($user->isAdmin() || $user->isSuperAdmin());
-            $productData['is_approved'] = $canPublish ? ($request->is_approved ?? false) : false;
+            $isColaborador = $user && !$user->is_superadmin && (
+                (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+                || $user->assigned_category_id
+            );
+
+            // Apenas Admins Genuínos ou SuperAdmins podem publicar diretamente
+            $canPublish = $user && !$isColaborador;
+            $productData['is_approved'] = $canPublish ? ($request->input('is_approved', false)) : false;
 
             $product = Product::create($productData);
 
@@ -102,7 +128,9 @@ class ProductController extends Controller
             
             // Notificar Administradores se o produto precisar de aprovação
             if (!$product->is_approved) {
-                $admins = User::where('role', 'admin')->orWhere('is_superadmin', true)->get();
+                $admins = User::where('is_superadmin', true)->orWhere(function($q) {
+                    $q->where('role', 'admin')->whereDoesntHave('categories')->whereNull('assigned_category_id');
+                })->get();
                 Notification::send($admins, new ProductPendingApproval($product));
             }
 
@@ -151,8 +179,13 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Não tem permissão para gerir produtos nesta categoria.'], 403);
             }
 
-            // Verificar se o utilizador pode editar este produto especificamente (se não for admin)
-            if ($user && !$user->isAdmin() && !$user->isSuperAdmin() && $product->created_by !== $user->id) {
+            $isColaborador = $user && !$user->is_superadmin && (
+                (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+                || $user->assigned_category_id
+            );
+
+            // Verificar se o utilizador pode editar este produto especificamente (se for colaborador)
+            if ($isColaborador && $product->created_by !== $user->id) {
                 return response()->json(['message' => 'Não tem permissão para editar este produto.'], 403);
             }
 
@@ -160,17 +193,16 @@ class ProductController extends Controller
             
             $wasApproved = $product->is_approved;
 
-            // Apenas Admins podem alterar o estado de aprovação
-            if ($request->has('is_approved') && $user && ($user->isAdmin() || $user->isSuperAdmin())) {
+            // Apenas Admins Genuínos podem alterar o estado de aprovação
+            if ($request->has('is_approved') && !$isColaborador) {
                 $updateData['is_approved'] = $request->is_approved;
                 if ($request->is_approved && !$wasApproved) {
                     $updateData['approved_by'] = $user->id;
                 }
             }
 
-            // Se um colaborador editar, o produto deve voltar para aprovação? 
-            // Seguindo a lógica de segurança, se não for admin, forçamos pendente novamente
-            if ($user && !$user->isAdmin() && !$user->isSuperAdmin()) {
+            // Se um colaborador editar, o produto deve voltar para aprovação
+            if ($isColaborador) {
                 $updateData['is_approved'] = false;
             }
 
@@ -232,8 +264,13 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $user = $request->user();
 
-        // Só pode apagar se for admin ou o criador
-        if ($user && !$user->isAdmin() && !$user->isSuperAdmin() && $product->created_by !== $user->id) {
+        $isColaborador = $user && !$user->is_superadmin && (
+            (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+            || $user->assigned_category_id
+        );
+
+        // Só pode apagar se for admin ou o criador (sendo colaborador)
+        if ($isColaborador && $product->created_by !== $user->id) {
             return response()->json(['message' => 'Não tem permissão para remover este produto.'], 403);
         }
 
@@ -253,8 +290,14 @@ class ProductController extends Controller
     public function approve(Request $request, string $id)
     {
         $user = $request->user();
-        if (!$user || (!$user->isAdmin() && !$user->isSuperAdmin())) {
-            return response()->json(['message' => 'Apenas administradores podem aprovar produtos.'], 403);
+        
+        $isColaborador = $user && !$user->is_superadmin && (
+            (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+            || $user->assigned_category_id
+        );
+
+        if (!$user || $isColaborador) {
+            return response()->json(['message' => 'Apenas administradores genuínos podem aprovar produtos.'], 403);
         }
 
         $product = Product::findOrFail($id);
