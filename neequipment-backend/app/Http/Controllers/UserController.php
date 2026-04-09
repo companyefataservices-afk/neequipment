@@ -13,10 +13,17 @@ class UserController extends Controller
     /**
      * List all users (Admin only)
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $query = User::where('role', 'admin');
+            $user = $request->user();
+            
+            // Apenas administradores ou superadmins podem ver a lista completa
+            if (!$user || (!$user->isAdmin() && !$user->isSuperAdmin())) {
+                return response()->json(['message' => 'Não autorizado.'], 403);
+            }
+
+            $query = User::whereIn('role', ['admin', 'collaborator']);
             
             $relations = [];
             if (Schema::hasColumn('users', 'assigned_category_id')) {
@@ -48,9 +55,9 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Administradores têm permissão para adicionar novos membros à equipa.
-        if (!$request->user() || $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Apenas utilizadores com privilégios de administrador podem adicionar membros.'], 403);
+        $adminUser = $request->user();
+        if (!$adminUser || (!$adminUser->isAdmin() && !$adminUser->isSuperAdmin())) {
+            return response()->json(['message' => 'Apenas administradores podem adicionar membros.'], 403);
         }
 
         try {
@@ -74,7 +81,6 @@ class UserController extends Controller
                 'password' => Hash::make($request->password),
             ];
 
-            // Proteção contra colunas que podem não existir ainda no banco de dados do Railway
             if (Schema::hasColumn('users', 'is_superadmin')) {
                 $userData['is_superadmin'] = $request->is_superadmin ?? false;
             }
@@ -87,23 +93,19 @@ class UserController extends Controller
 
             $user = User::create($userData);
 
-            if ($request->filled('category_ids') && method_exists($user, 'categories')) {
-                // Verificar se a tabela intermédia existe no Railway antes de sincronizar
+            // Filtrar IDs vazios antes de sincronizar
+            $categoryIds = array_filter($request->category_ids ?? [], fn($id) => !empty($id));
+
+            if (!empty($categoryIds) && method_exists($user, 'categories')) {
                 if (Schema::hasTable('user_categories')) {
-                    $user->categories()->sync($request->category_ids);
+                    $user->categories()->sync($categoryIds);
                 }
             }
 
             $relations = [];
-            if (Schema::hasColumn('users', 'assigned_category_id')) {
-                $relations[] = 'assignedCategory';
-            }
-            if (Schema::hasTable('user_categories')) {
-                $relations[] = 'categories';
-            }
-            if (!empty($relations)) {
-                $user->load($relations);
-            }
+            if (Schema::hasColumn('users', 'assigned_category_id')) { $relations[] = 'assignedCategory'; }
+            if (Schema::hasTable('user_categories')) { $relations[] = 'categories'; }
+            if (!empty($relations)) { $user->load($relations); }
 
             return response()->json([
                 'message' => 'Utilizador criado com sucesso',
@@ -123,8 +125,9 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Apenas utilizadores com privilégios de administrador podem editar membros.'], 403);
+        $adminUser = $request->user();
+        if (!$adminUser || (!$adminUser->isAdmin() && !$adminUser->isSuperAdmin())) {
+            return response()->json(['message' => 'Apenas administradores podem editar membros.'], 403);
         }
 
         try {
@@ -134,6 +137,7 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . $id,
                 'phone' => 'nullable|string|max:20',
+                'role' => 'nullable|string|in:admin,customer,collaborator',
                 'is_superadmin' => 'nullable|boolean',
                 'password' => 'nullable|string|min:6',
                 'assigned_category_id' => 'nullable|exists:categories,id',
@@ -147,11 +151,14 @@ class UserController extends Controller
                 'phone' => $request->phone,
             ];
 
+            if ($request->has('role')) {
+                $userData['role'] = $request->role;
+            }
+
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
             }
 
-            // Atribuição condicional de colunas extras
             if (Schema::hasColumn('users', 'is_superadmin')) {
                 $userData['is_superadmin'] = $request->is_superadmin ?? $user->is_superadmin;
             }
@@ -161,21 +168,17 @@ class UserController extends Controller
 
             $user->update($userData);
 
-            // Sincronização condicional de categorias
-            if (Schema::hasTable('user_categories')) {
-                $user->categories()->sync($request->category_ids ?? []);
+            // Filtrar IDs vazios antes de sincronizar
+            $categoryIds = array_filter($request->category_ids ?? [], fn($id) => !empty($id));
+
+            if (Schema::hasTable('user_categories') && method_exists($user, 'categories')) {
+                $user->categories()->sync($categoryIds);
             }
 
             $relations = [];
-            if (Schema::hasColumn('users', 'assigned_category_id')) {
-                $relations[] = 'assignedCategory';
-            }
-            if (Schema::hasTable('user_categories')) {
-                $relations[] = 'categories';
-            }
-            if (!empty($relations)) {
-                $user->load($relations);
-            }
+            if (Schema::hasColumn('users', 'assigned_category_id')) { $relations[] = 'assignedCategory'; }
+            if (Schema::hasTable('user_categories')) { $relations[] = 'categories'; }
+            if (!empty($relations)) { $user->load($relations); }
 
             return response()->json([
                 'message' => 'Utilizador atualizado com sucesso',
@@ -195,13 +198,14 @@ class UserController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
+        $adminUser = $request->user();
+        if (!$adminUser || (!$adminUser->isAdmin() && !$adminUser->isSuperAdmin())) {
             return response()->json(['message' => 'Apenas utilizadores com privilégios de administrador podem remover membros.'], 403);
         }
 
         $user = User::findOrFail($id);
         
-        if ($user->id === $request->user()->id) {
+        if ($user->id === $adminUser->id) {
             return response()->json(['message' => 'Não pode remover a si próprio.'], 422);
         }
 

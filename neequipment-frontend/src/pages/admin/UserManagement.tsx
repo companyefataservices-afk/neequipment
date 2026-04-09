@@ -75,11 +75,17 @@ const UserManagement = () => {
         e.preventDefault();
         setSubmittingMember(true);
         try {
+            // Limpar IDs vazios antes de enviar
+            const submissionData = {
+                ...memberFormData,
+                category_ids: memberFormData.category_ids.filter(id => id && id.trim() !== '')
+            };
+
             if (memberFormData.id) {
-                await api.put(`/admin/users/${memberFormData.id}`, memberFormData);
+                await api.put(`/admin/users/${memberFormData.id}`, submissionData);
                 toast.success('Colaborador atualizado com sucesso!');
             } else {
-                await api.post('/admin/users', memberFormData);
+                await api.post('/admin/users', submissionData);
                 toast.success('Colaborador criado com sucesso!');
             }
             setIsMemberModalOpen(false);

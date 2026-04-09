@@ -105,13 +105,14 @@ class ProductController extends Controller
             $productData['created_by'] = $user ? $user->id : null;
             
             $isColaborador = $user && !$user->is_superadmin && (
+                $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
             );
 
             // Apenas Admins Genuínos ou SuperAdmins podem publicar diretamente
             $canPublish = $user && !$isColaborador;
-            $productData['is_approved'] = $canPublish ? ($request->input('is_approved', false)) : false;
+            $productData['is_approved'] = $canPublish ? (bool)$request->is_approved : false;
 
             $product = Product::create($productData);
 
