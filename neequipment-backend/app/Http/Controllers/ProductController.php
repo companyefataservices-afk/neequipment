@@ -27,14 +27,14 @@ class ProductController extends Controller
             $user = $request->user();
             
             // Check if user is collaborator
-            $isColaborador = $user && !$user->is_superadmin && (
+            $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
                 $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
             );
             
             // Administradores genuínos veem tudo
-            $isGenuineAdmin = $user && !$isColaborador;
+            $isGenuineAdmin = $user && ($user->is_superadmin || $user->role === 'admin');
 
             if (!$isGenuineAdmin) {
                 // Visitantes públicos e Clientes veem apenas produtos aprovados
@@ -104,7 +104,7 @@ class ProductController extends Controller
             $productData['sku'] = $request->sku ?: null;
             $productData['created_by'] = $user ? $user->id : null;
             
-            $isColaborador = $user && !$user->is_superadmin && (
+            $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
                 $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
@@ -181,7 +181,7 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Não tem permissão para gerir produtos nesta categoria.'], 403);
             }
 
-            $isColaborador = $user && !$user->is_superadmin && (
+            $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
                 $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
@@ -267,7 +267,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $user = $request->user();
 
-        $isColaborador = $user && !$user->is_superadmin && (
+        $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
             $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
@@ -295,7 +295,7 @@ class ProductController extends Controller
     {
         $user = $request->user();
         
-        $isColaborador = $user && !$user->is_superadmin && (
+        $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
             $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
@@ -323,3 +323,4 @@ class ProductController extends Controller
         ]);
     }
 }
+
