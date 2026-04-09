@@ -12,17 +12,19 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 const countries = [
   { 
-    name: 'MOÇAMBIQUE', 
-    locations: [
-      { city: 'Maputo (Sede HQ)', address: 'Av. Vladimir Lenine Nr. 1447, 1º Andar Esquerdo', phone: '+258 84 311 4354', email: 'sales@neequipment.co.mz' },
-      { city: 'Pemba (Delegação)', address: 'Av. 25 de Setembro, Bairro Cimento', phone: '+258 87 319 71 52', email: 'geral@neequipment.co.mz' }
+    name: 'MOÇAMBIQUE',
+    flag: '🇲🇿',
+    contacts: [
+      { label: 'Contacto 1', phone: '+258 84 311 4354', email: 'sales@neequipment.co.mz' },
+      { label: 'Contacto 2', phone: '+258 87 319 71 52', email: 'geral@neequipment.co.mz' }
     ]
   },
   { 
-    name: 'SOUTH AFRICA', 
-    locations: [
-      { city: 'Johannesburg HQ', address: 'Stanford Gardens 2, Bedfordview', phone: '+27 (63) 123 34 07', email: 'sales@neequipment.co.za' },
-      { city: 'Gauteng Service', address: 'Stanford Gardens 2, Bedfordview', phone: '+27 (78) 951-5256', email: 'sales@neequipment.co.za' }
+    name: 'SOUTH AFRICA',
+    flag: '🇿🇦',
+    contacts: [
+      { label: 'Contacto 1', phone: '+27 (63) 123 34 07', email: 'sales@neequipment.co.za' },
+      { label: 'Contacto 2', phone: '+27 (78) 951-5256', email: 'sales@neequipment.co.za' }
     ]
   },
 ];
@@ -31,10 +33,26 @@ const Contact = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const waNumber = '258843114354';
+    
+    let subjectName = formData.subject;
+    if (formData.subject === 'procurement') subjectName = t.contactPage.subjects.procurement;
+    else if (formData.subject === 'cotacao') subjectName = t.contactPage.subjects.quote;
+    else if (formData.subject === 'transporte') subjectName = t.contactPage.subjects.transport;
+    else if (formData.subject === 'parceria') subjectName = t.contactPage.subjects.partnership;
+    else if (formData.subject === 'outro') subjectName = t.contactPage.subjects.other;
+    else if (!subjectName) subjectName = 'Não especificado';
+
+    const text = `*Nova Mensagem do Site NE Equipment*\n\n*Nome:* ${formData.name}\n*Email:* ${formData.email}\n*Assunto:* ${subjectName}\n*Mensagem:* ${formData.message}`;
+    
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+
     toast.success(t.contactPage.success);
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
@@ -53,29 +71,25 @@ const Contact = () => {
               {countries.map((country) => (
                 <div key={country.name} className="glass-card p-6 md:p-8">
                   <h3 className="font-bold text-navy-dark text-xl mb-6 pb-2 border-b border-gold/20 flex items-center gap-2">
-                    {country.name === 'MOÇAMBIQUE' ? '🇲🇿' : '🇿🇦'}
+                    {country.flag}
                     {country.name}
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {country.locations.map((loc, idx) => (
-                      <div key={idx} className="space-y-4">
-                        <h4 className="font-bold text-gold text-sm uppercase tracking-wider">{loc.city}</h4>
-                        <div className="space-y-3 text-muted-foreground text-sm">
-                          <p className="flex items-start gap-2 leading-relaxed">
-                            <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold/60" />
-                            {loc.address}
-                          </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {country.contacts.map((contact, idx) => (
+                      <div key={idx} className="space-y-3">
+                        <h4 className="font-bold text-gold text-sm uppercase tracking-wider">{language === 'EN' ? contact.label.replace('Contacto', 'Contact') : contact.label}</h4>
+                        <div className="space-y-2 text-muted-foreground text-sm">
                           <p className="flex items-center gap-2">
                             <Phone className="w-4 h-4 flex-shrink-0 text-gold/60" />
-                            <a href={`tel:${loc.phone}`} className="font-semibold text-foreground hover:text-gold transition-colors">
-                              {loc.phone}
+                            <a href={`tel:${contact.phone}`} className="font-semibold text-foreground hover:text-gold transition-colors">
+                              {contact.phone}
                             </a>
                           </p>
                           <p className="flex items-center gap-2">
                             <Mail className="w-4 h-4 flex-shrink-0 text-gold/60" />
-                            <a href={`mailto:${loc.email}`} className="text-gold hover:underline">
-                              {loc.email}
+                            <a href={`mailto:${contact.email}`} className="text-gold hover:underline">
+                              {contact.email}
                             </a>
                           </p>
                         </div>
