@@ -77,6 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     Route::post('/admin/products/{id}/approve', [ProductController::class, 'approve']);
+    Route::post('/admin/products/{id}/reject', [ProductController::class, 'reject']);
+    Route::get('/admin/products/{id}/comments', [ProductController::class, 'getComments']);
+    Route::post('/admin/products/{id}/comments', [ProductController::class, 'addComment']);
 
     // Cotações (Criação/Listagem pelo Cliente)
     Route::get('/quotes', [QuoteController::class, 'userIndex']);

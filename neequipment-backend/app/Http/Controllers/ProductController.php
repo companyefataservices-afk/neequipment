@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Models\User;
 use App\Notifications\ProductPendingApproval;
 use App\Notifications\ProductPublished;
+use App\Notifications\ProductFeedbackNotification;
+use App\Models\ProductComment;
 
 class ProductController extends Controller
 {
@@ -42,7 +44,7 @@ class ProductController extends Controller
                 if (!$user || $user->role === 'customer') {
                     $query->where('is_approved', true);
                 } 
-                // Colaboradores veem apenas produtos das suas categorias (aprovados ou pendentes criados por eles)
+                // Colaboradores veem TODOS os aprovados + pendentes das suas categorias associadas
                 else if ($isColaborador) {
                     $categoryIds = [];
                     if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
@@ -51,16 +53,11 @@ class ProductController extends Controller
                     if ($user->assigned_category_id) {
                         $categoryIds[] = $user->assigned_category_id;
                     }
-                    
-                    if (empty($categoryIds)) {
-                        $query->where('created_by', $user->id);
-                    } else {
-                        $query->whereIn('category_id', $categoryIds)
-                              ->where(function ($q) use ($user) {
-                                  $q->where('is_approved', true)
-                                    ->orWhere('created_by', $user->id);
-                              });
-                    }
+
+                    $query->where(function ($q) use ($user, $categoryIds) {
+                        $q->where('is_approved', true) // Todos podem ver o que está publicado
+                          ->orWhereIn('category_id', $categoryIds); // Colaboradores veem pendentes das suas categorias
+                    });
                 }
             }
 
@@ -199,9 +196,10 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Não tem permissão para editar este produto.'], 403);
             }
 
-            // Colaboradores não podem editar produtos que já foram aprovados
+            // Colaboradores não podem editar produtos que já foram aprovados sem solicitar alteração
             if ($isColaborador && $product->is_approved) {
-                return response()->json(['message' => 'Este produto já foi aprovado. Apenas administradores o podem editar.'], 403);
+                // Ao editar, o is_approved passa a false (solicitação implícita)
+                // Mas garantimos que ele só toca em categorias permitidas
             }
 
             $updateData = $request->except(['images', 'remove_images', 'is_approved', 'approved_by']);
@@ -290,9 +288,15 @@ class ProductController extends Controller
             return response()->json(['message' => 'Não tem permissão para remover este produto.'], 403);
         }
 
-        // Colaboradores não podem apagar produtos que já foram aprovados
+        // Colaboradores não podem apagar diretamente produtos aprovados; eles solicitam a remoção
         if ($isColaborador && $product->is_approved) {
-            return response()->json(['message' => 'Este produto já foi aprovado. Apenas administradores o podem apagar.'], 403);
+            $product->update(['delete_requested' => true]);
+            
+            // Notificar Admin
+            $admins = User::where('role', 'admin')->orWhere('is_superadmin', true)->get();
+            Notification::send($admins, new ProductPendingApproval($product)); // Reutilizar ou criar nova notificação para remoção
+
+            return response()->json(['message' => 'Solicitação de remoção enviada ao administrador.']);
         }
 
         return DB::transaction(function () use ($product) {
@@ -327,7 +331,8 @@ class ProductController extends Controller
 
         $product->update([
             'is_approved' => true,
-            'approved_by' => $user->id
+            'approved_by' => $user->id,
+            'delete_requested' => false // Se aprova, cancela qualquer pedido de remoção pendente
         ]);
 
         if (!$wasAlreadyApproved && $product->creator) {
@@ -338,6 +343,92 @@ class ProductController extends Controller
             'message' => 'Produto aprovado e publicado com sucesso.',
             'product' => $product->load('images', 'category')
         ]);
+    }
+
+    /**
+     * Reject a product modification or deletion (Admins only)
+     */
+    public function reject(Request $request, string $id)
+    {
+        $user = $request->user();
+        if ($user->role === 'collaborator' && !$user->is_superadmin && $user->role !== 'admin') {
+            return response()->json(['message' => 'Apenas administradores podem rejeitar solicitações.'], 403);
+        }
+
+        $product = Product::findOrFail($id);
+        $reason = $request->input('reason', 'Não atende aos critérios da plataforma.');
+
+        // Se era um pedido de remoção, cancelamos o pedido
+        if ($product->delete_requested) {
+            $product->update(['delete_requested' => false]);
+            $message = 'Pedido de remoção rejeitado. O produto continuará publicado.';
+        } else {
+            // Se era uma edição/publicação, mantemos como pendente e pedimos correção
+            $message = 'Publicação rejeitada. O colaborador deve corrigir o produto conforme as notas.';
+        }
+
+        // Adicionar comentário/feedback no "chat"
+        $comment = ProductComment::create([
+            'product_id' => $product->id,
+            'user_id' => $user->id,
+            'message' => "REJEITADO: " . $reason,
+            'is_admin' => true
+        ]);
+
+        // Notificar o criador sobre a rejeição/feedback
+        if ($product->creator) {
+            $product->creator->notify(new ProductFeedbackNotification($product, $comment, $user));
+        }
+
+        return response()->json([
+            'message' => $message,
+            'product' => $product->load('images', 'category', 'comments')
+        ]);
+    }
+
+    /**
+     * Adicionar comentário ao chat do produto
+     */
+    public function addComment(Request $request, string $id)
+    {
+        $request->validate(['message' => 'required|string']);
+        $user = $request->user();
+        $product = Product::findOrFail($id);
+
+        $comment = ProductComment::create([
+            'product_id' => $product->id,
+            'user_id' => $user->id,
+            'message' => $request->message,
+            'is_admin' => ($user->role === 'admin' || $user->is_superadmin)
+        ]);
+
+        // Notificar as partes interessadas
+        if ($comment->is_admin) {
+            // Se o admin comentou, notifica o criador
+            if ($product->creator) {
+                $product->creator->notify(new ProductFeedbackNotification($product, $comment, $user));
+            }
+        } else {
+            // Se o colaborador comentou, notifica os admins
+            $admins = User::where('is_superadmin', true)->orWhere(function($q) {
+                $q->where('role', 'admin')->whereDoesntHave('categories')->whereNull('assigned_category_id');
+            })->get();
+            Notification::send($admins, new ProductFeedbackNotification($product, $comment, $user));
+        }
+
+        return response()->json($comment->load('user'));
+    }
+
+    /**
+     * Listar comentários do chat do produto
+     */
+    public function getComments(string $id)
+    {
+        $comments = ProductComment::where('product_id', $id)
+            ->with('user:id,name')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        return response()->json($comments);
     }
 }
 

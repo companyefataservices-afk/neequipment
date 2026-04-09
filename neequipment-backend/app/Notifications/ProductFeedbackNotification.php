@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class ProductFeedbackNotification extends Notification
+{
+    use Queueable;
+
+    protected $product;
+    protected $comment;
+    protected $sender;
+
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct($product, $comment, $sender)
+    {
+        $this->product = $product;
+        $this->comment = $comment;
+        $this->sender = $sender;
+    }
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via(object $notifiable): array
+    {
+        return ['database'];
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'product_id' => $this->product->id,
+            'product_name' => $this->product->name,
+            'sender_name' => $this->sender->name,
+            'message' => 'Novo comentário no produto: ' . $this->product->name,
+            'comment_preview' => substr($this->comment->message, 0, 50) . '...',
+            'action_url' => '/admin/products/' . $this->product->id,
+            'type' => 'product_feedback'
+        ];
+    }
+}

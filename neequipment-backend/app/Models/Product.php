@@ -19,6 +19,7 @@ class Product extends Model
         'specifications',
         'category_id',
         'is_approved',
+        'delete_requested',
         'approved_by',
         'created_by',
     ];
@@ -48,5 +49,10 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(ProductComment::class)->orderBy('created_at', 'asc');
     }
 }

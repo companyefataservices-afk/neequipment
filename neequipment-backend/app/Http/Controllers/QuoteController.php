@@ -21,15 +21,21 @@ class QuoteController extends Controller
         $user = Auth::user();
         $query = Quote::with(['user', 'items.product.images'])->orderBy('created_at', 'desc');
 
-        // Se o admin tiver uma categoria atribuída e for filtrado (removido para dar acesso total a todos os admins)
-        /*
-        if ($user && !$user->is_superadmin && $user->assigned_category_id) {
-            $categoryId = $user->assigned_category_id;
-            $query->whereHas('items.product', function ($q) use ($categoryId) {
-                $q->where('category_id', $categoryId);
+        // Se for Colaborador, filtrar por categorias atribuídas
+        $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin';
+        if ($isColaborador) {
+            $categoryIds = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                $categoryIds = $user->categories()->pluck('categories.id')->toArray();
+            }
+            if ($user->assigned_category_id) {
+                $categoryIds[] = $user->assigned_category_id;
+            }
+
+            $query->whereHas('items.product', function ($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
             });
         }
-        */
 
         return response()->json($query->get());
     }
@@ -116,7 +122,29 @@ class QuoteController extends Controller
      */
     public function show($id)
     {
+        $user = Auth::user();
         $quote = Quote::with(['user', 'items.product.images'])->findOrFail($id);
+
+        // Verificação de acesso para Colaboradores
+        $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin';
+        if ($isColaborador) {
+            $categoryIds = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                $categoryIds = $user->categories()->pluck('categories.id')->toArray();
+            }
+            if ($user->assigned_category_id) {
+                $categoryIds[] = $user->assigned_category_id;
+            }
+
+            $hasAccess = $quote->items()->whereHas('product', function($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
+            })->exists();
+
+            if (!$hasAccess) {
+                return response()->json(['message' => 'Não tem permissão para aceder a esta cotação.'], 403);
+            }
+        }
+
         return response()->json($quote);
     }
 
@@ -199,8 +227,28 @@ class QuoteController extends Controller
                 'items.*.approved_price' => 'nullable|numeric',
             ]);
 
+            $user = Auth::user();
+            $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin';
+            $categoryIds = [];
+            if ($isColaborador) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                    $categoryIds = $user->categories()->pluck('categories.id')->toArray();
+                }
+                if ($user->assigned_category_id) {
+                    $categoryIds[] = $user->assigned_category_id;
+                }
+            }
+
             foreach ($request->items as $itemData) {
-                $quoteItem = QuoteItem::where('quote_id', $id)->findOrFail($itemData['id']);
+                $quoteItem = QuoteItem::where('quote_id', $id)->with('product')->findOrFail($itemData['id']);
+                
+                // Se for colaborador, só pode editar itens das suas categorias
+                if ($isColaborador) {
+                    if (!in_array($quoteItem->product->category_id, $categoryIds)) {
+                        continue; // Pula itens que não são dele
+                    }
+                }
+
                 $quoteItem->update(['approved_price' => $itemData['approved_price']]);
             }
 
@@ -251,9 +299,29 @@ class QuoteController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        $isAdmin = $user->role === 'admin';
-
         $quote = \App\Models\Quote::findOrFail($id);
+
+        // Verificação de acesso para Colaboradores no Chat
+        $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && $user->role !== 'customer';
+        if ($isColaborador) {
+             $categoryIds = [];
+             if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                 $categoryIds = $user->categories()->pluck('categories.id')->toArray();
+             }
+             if ($user->assigned_category_id) {
+                 $categoryIds[] = $user->assigned_category_id;
+             }
+
+             $hasAccess = $quote->items()->whereHas('product', function($q) use ($categoryIds) {
+                 $q->whereIn('category_id', $categoryIds);
+             })->exists();
+
+             if (!$hasAccess) {
+                 return response()->json(['message' => 'Não tem permissão para enviar mensagens nesta cotação.'], 403);
+             }
+        }
+
+        $isAdmin = $user->role === 'admin';
 
         $message = \App\Models\QuoteMessage::create([
             'quote_id' => $quote->id,

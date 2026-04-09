@@ -41,6 +41,7 @@ interface Product {
         is_primary: boolean;
     }[];
     is_approved?: boolean;
+    delete_requested?: boolean;
     created_by?: number;
     creator?: { name: string };
 }
@@ -104,13 +105,33 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
             await api.post(`/admin/products/${id}/approve`);
             toast({
                 title: "Sucesso",
-                description: "Produto aprovado e publicado com sucesso.",
+                description: "Solicitação aprovada com sucesso.",
             });
             fetchProducts();
         } catch (error: any) {
             toast({
                 title: "Erro",
-                description: error.response?.data?.message || "Não foi possível aprovar o produto.",
+                description: error.response?.data?.message || "Não foi possível aprovar.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const handleReject = async (id: number) => {
+        const reason = prompt("Indique a razão da rejeição:");
+        if (reason === null) return;
+
+        try {
+            await api.post(`/admin/products/${id}/reject`, { reason });
+            toast({
+                title: "Sucesso",
+                description: "Solicitação rejeitada.",
+            });
+            fetchProducts();
+        } catch (error: any) {
+            toast({
+                title: "Erro",
+                description: error.response?.data?.message || "Não foi possível rejeitar.",
                 variant: "destructive"
             });
         }
@@ -204,15 +225,22 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                         </Badge>
                                     </td>
                                     <td className="px-6 py-4">
-                                        {product.is_approved ? (
-                                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold">
-                                                Publicado
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-none font-bold">
-                                                Pendente
-                                            </Badge>
-                                        )}
+                                        <div className="flex flex-col gap-1">
+                                            {product.is_approved ? (
+                                                <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold w-fit">
+                                                    Publicado
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-none font-bold w-fit">
+                                                    Pendente
+                                                </Badge>
+                                            )}
+                                            {product.delete_requested && (
+                                                <Badge variant="destructive" className="font-bold text-[10px] uppercase w-fit">
+                                                    Remoção Solicitada
+                                                </Badge>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 font-medium">
                                         <span className={product.stock_quantity < 5 ? 'text-destructive flex items-center gap-1 font-bold' : ''}>
@@ -228,26 +256,28 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-48">
-                                                {!product.is_approved && !isColaborador && (
+                                                {(!isColaborador && (!product.is_approved || product.delete_requested)) && (
                                                     <>
                                                         <DropdownMenuItem onClick={() => handleApprove(product.id)} className="gap-2 font-bold text-green-600 focus:text-green-600 focus:bg-green-50">
-                                                            <CheckCircle2 className="w-4 h-4" /> Aprovar e Publicar
+                                                            <CheckCircle2 className="w-4 h-4" /> {product.delete_requested ? 'Aprovar Remoção' : 'Aprovar Publicação'}
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleDelete(product.id)} className="gap-2 font-bold text-destructive focus:text-red-600 focus:bg-red-50">
-                                                            <XCircle className="w-4 h-4" /> Rejeitar (Eliminar)
+                                                        <DropdownMenuItem onClick={() => handleReject(product.id)} className="gap-2 font-bold text-destructive focus:text-red-600 focus:bg-red-50">
+                                                            <XCircle className="w-4 h-4" /> Rejeitar Solicitação
                                                         </DropdownMenuItem>
                                                     </>
                                                 )}
                                                     <DropdownMenuItem onClick={() => onViewProduct(product.id)} className="gap-2">
                                                         <Eye className="w-4 h-4 text-primary" /> Visualizar Detalhes
                                                     </DropdownMenuItem>
-                                                    {(!isColaborador || (!product.is_approved && product.created_by === currentUser?.id)) && (
+                                                    
+                                                    {/* Opções de gestão para quem tem permissão */}
+                                                    {(!isColaborador || (product.created_by === currentUser?.id)) && (
                                                         <>
                                                             <DropdownMenuItem onClick={() => onEditProduct(product)} className="gap-2">
                                                                 <Edit className="w-4 h-4" /> Editar
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => handleDelete(product.id)} className="gap-2 text-destructive focus:text-destructive">
-                                                                <Trash2 className="w-4 h-4" /> Eliminar
+                                                                <Trash2 className="w-4 h-4" /> {isColaborador && product.is_approved ? 'Solicitar Remoção' : 'Eliminar'}
                                                             </DropdownMenuItem>
                                                         </>
                                                     )}
