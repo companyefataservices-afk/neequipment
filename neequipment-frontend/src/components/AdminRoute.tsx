@@ -21,7 +21,9 @@ const AdminRoute = () => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (user?.role !== 'admin') {
+    const isStaff = user?.role === 'admin' || user?.role === 'collaborator';
+
+    if (!isStaff) {
         // Redireciona utilizadores comuns para a home se tentarem aceder ao admin
         return <Navigate to="/" replace />;
     }

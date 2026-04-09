@@ -33,11 +33,12 @@ const Login = () => {
 
             toast.success(language === 'PT' ? 'Login efetuado com sucesso!' : 'Login successful!');
 
-            // Redirecionamento dinâmico
-            let dest = from || (loggedInUser?.role === 'admin' ? '/admin' : '/dashboard');
-
-            // Se for admin e estiver a tentar voltar para a home, forçamos o painel de admin
-            if (loggedInUser?.role === 'admin' && (dest === '/' || !from)) {
+            // Redirecionamento dinâmico: Staff (Admin/Colaboradores) -> /admin, Clientes -> /dashboard
+            const isStaff = loggedInUser?.role === 'admin' || loggedInUser?.role === 'collaborator';
+            let dest = from || (isStaff ? '/admin' : '/dashboard');
+            
+            // Se for staff e estiver a tentar voltar para a home, forçamos o painel de admin
+            if (isStaff && (dest === '/' || !from)) {
                 dest = '/admin';
             }
 

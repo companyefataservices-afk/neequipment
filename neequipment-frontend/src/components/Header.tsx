@@ -83,7 +83,8 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                 <div className="hidden md:flex items-center gap-4">
                   <button
                     onClick={() => {
-                      if (user?.role === 'admin') {
+                      const isStaff = user?.role === 'admin' || user?.role === 'collaborator';
+                      if (isStaff) {
                         navigate('/admin');
                       } else {
                         onNavigate('dashboard');
@@ -160,7 +161,8 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                     {isAuthenticated ? (
                       <Button
                         onClick={() => { 
-                          if (user?.role === 'admin') {
+                          const isStaff = user?.role === 'admin' || user?.role === 'collaborator';
+                          if (isStaff) {
                             navigate('/admin');
                           } else {
                             onNavigate('dashboard'); 
@@ -205,7 +207,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                           </div>
                         ))}
                         <div className="border-t pt-4">
-                          {user?.role !== 'admin' ? (
+                          {!(user?.role === 'admin' || user?.role === 'collaborator') ? (
                             <Button 
                               onClick={() => {
                                 onQuoteClick();
@@ -218,7 +220,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                             </Button>
                           ) : (
                             <p className="text-xs text-muted-foreground text-center italic py-2">
-                              {language === 'PT' ? 'Admins não podem solicitar cotações.' : 'Admins cannot request quotes.'}
+                              {language === 'PT' ? 'Staff não pode solicitar cotações.' : 'Staff cannot request quotes.'}
                             </p>
                           )}
                         </div>
@@ -271,7 +273,8 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
               {isAuthenticated && (
                 <button
                   onClick={() => { 
-                    if (user?.role === 'admin') {
+                    const isStaff = user?.role === 'admin' || user?.role === 'collaborator';
+                    if (isStaff) {
                       navigate('/admin');
                     } else {
                       onNavigate('dashboard'); 

@@ -57,7 +57,7 @@ const Index = () => {
       if (!isAuthenticated) {
         navigate('/login', { state: { from: { pathname: '/dashboard' } } });
         return;
-      } else if (user?.role === 'admin') {
+      } else if (user?.role === 'admin' || user?.role === 'collaborator') {
         navigate('/admin');
         return;
       }
