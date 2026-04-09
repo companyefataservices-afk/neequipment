@@ -44,6 +44,7 @@ class CategoryController extends Controller
     {
         $user = $request->user();
         $isColaborador = $user && !$user->is_superadmin && (
+            $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
         );
@@ -79,6 +80,7 @@ class CategoryController extends Controller
     {
         $user = $request->user();
         $isColaborador = $user && !$user->is_superadmin && (
+            $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
         );
@@ -110,6 +112,7 @@ class CategoryController extends Controller
     {
         $user = $request->user();
         $isColaborador = $user && !$user->is_superadmin && (
+            $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
         );

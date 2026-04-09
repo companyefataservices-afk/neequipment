@@ -134,7 +134,7 @@ const UserManagement = () => {
             is_superadmin: !!user.is_superadmin,
             password: '',
             category_ids: catIds,
-            _workerMode: catIds.length > 0
+            _workerMode: user.role === 'collaborator' || catIds.length > 0
         });
         setIsMemberModalOpen(true);
     };
@@ -367,7 +367,7 @@ const UserManagement = () => {
                                                 if (val === 'admin') {
                                                     setMemberFormData({...memberFormData, role: 'admin', is_superadmin: false, category_ids: [], _workerMode: false});
                                                 } else {
-                                                    setMemberFormData({...memberFormData, role: 'admin', is_superadmin: false, _workerMode: true});
+                                                    setMemberFormData({...memberFormData, role: 'collaborator', is_superadmin: false, _workerMode: true});
                                                 }
                                             }}
                                             className="w-full h-12 bg-muted/20 border border-border/30 rounded-2xl px-4 text-sm focus:ring-primary/20 outline-none font-medium text-foreground"

@@ -28,6 +28,7 @@ class ProductController extends Controller
             
             // Check if user is collaborator
             $isColaborador = $user && !$user->is_superadmin && (
+                $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
             );
@@ -180,6 +181,7 @@ class ProductController extends Controller
             }
 
             $isColaborador = $user && !$user->is_superadmin && (
+                $user->role === 'collaborator' ||
                 (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
                 || $user->assigned_category_id
             );
@@ -265,6 +267,7 @@ class ProductController extends Controller
         $user = $request->user();
 
         $isColaborador = $user && !$user->is_superadmin && (
+            $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
         );
@@ -292,6 +295,7 @@ class ProductController extends Controller
         $user = $request->user();
         
         $isColaborador = $user && !$user->is_superadmin && (
+            $user->role === 'collaborator' ||
             (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
             || $user->assigned_category_id
         );

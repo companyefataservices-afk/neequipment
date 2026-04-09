@@ -54,7 +54,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
     const { toast } = useToast();
     const { user: currentUser } = useAuth();
 
-    const isColaborador = !currentUser?.is_superadmin && ((currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
+    const isColaborador = !currentUser?.is_superadmin && (currentUser?.role === 'collaborator' || (currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
     const fetchProducts = async () => {
         try {
             setIsLoading(true);

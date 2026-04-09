@@ -61,7 +61,7 @@ const AdminLayout = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { user, logout } = useAuth();
 
-  const isColaborador = !user?.is_superadmin && ((user?.categories && user.categories.length > 0) || user?.assigned_category || user?.assigned_category_id);
+  const isColaborador = !user?.is_superadmin && (user?.role === 'collaborator' || (user?.categories && user.categories.length > 0) || user?.assigned_category || user?.assigned_category_id);
 
   const navItems: NavItem[] = [
     { id: 'overview', label: 'Dashboard Geral', icon: LayoutDashboard },
