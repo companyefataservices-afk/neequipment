@@ -24,7 +24,8 @@ class ProductController extends Controller
         try {
             $query = Product::with('images', 'category');
 
-            $user = $request->user();
+            // O endpoint é público, mas precisamos de ler o token caso a dashboard (admin logado) o chame
+            $user = auth('sanctum')->user() ?? $request->user();
             
             // Check if user is collaborator
             $isColaborador = $user && !$user->is_superadmin && $user->role !== 'admin' && (
@@ -51,8 +52,14 @@ class ProductController extends Controller
                         $categoryIds[] = $user->assigned_category_id;
                     }
                     
-                    if (!empty($categoryIds)) {
-                        $query->whereIn('category_id', $categoryIds);
+                    if (empty($categoryIds)) {
+                        $query->where('created_by', $user->id);
+                    } else {
+                        $query->whereIn('category_id', $categoryIds)
+                              ->where(function ($q) use ($user) {
+                                  $q->where('is_approved', true)
+                                    ->orWhere('created_by', $user->id);
+                              });
                     }
                 }
             }
@@ -192,6 +199,11 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Não tem permissão para editar este produto.'], 403);
             }
 
+            // Colaboradores não podem editar produtos que já foram aprovados
+            if ($isColaborador && $product->is_approved) {
+                return response()->json(['message' => 'Este produto já foi aprovado. Apenas administradores o podem editar.'], 403);
+            }
+
             $updateData = $request->except(['images', 'remove_images', 'is_approved', 'approved_by']);
             
             $wasApproved = $product->is_approved;
@@ -276,6 +288,11 @@ class ProductController extends Controller
         // Só pode apagar se for admin ou o criador (sendo colaborador)
         if ($isColaborador && $product->created_by !== $user->id) {
             return response()->json(['message' => 'Não tem permissão para remover este produto.'], 403);
+        }
+
+        // Colaboradores não podem apagar produtos que já foram aprovados
+        if ($isColaborador && $product->is_approved) {
+            return response()->json(['message' => 'Este produto já foi aprovado. Apenas administradores o podem apagar.'], 403);
         }
 
         return DB::transaction(function () use ($product) {

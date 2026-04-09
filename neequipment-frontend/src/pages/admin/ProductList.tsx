@@ -40,6 +40,7 @@ interface Product {
         is_primary: boolean;
     }[];
     is_approved?: boolean;
+    created_by?: number;
 }
 
 interface ProductListProps {
@@ -55,7 +56,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
     const { toast } = useToast();
     const { user: currentUser } = useAuth();
 
-    const isColaborador = !currentUser?.is_superadmin && (currentUser?.role === 'collaborator' || (currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
+    const isColaborador = !currentUser?.is_superadmin && currentUser?.role !== 'admin' && (currentUser?.role === 'collaborator' || (currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
     const fetchProducts = async () => {
         try {
             setIsLoading(true);
@@ -223,15 +224,19 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                                         <CheckCircle2 className="w-4 h-4" /> Aprovar e Publicar
                                                     </DropdownMenuItem>
                                                 )}
-                                                <DropdownMenuItem onClick={() => onViewProduct(product.id)} className="gap-2">
-                                                    <Eye className="w-4 h-4 text-primary" /> Visualizar Detalhes
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onEditProduct(product)} className="gap-2">
-                                                    <Edit className="w-4 h-4" /> Editar
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDelete(product.id)} className="gap-2 text-destructive focus:text-destructive">
-                                                    <Trash2 className="w-4 h-4" /> Eliminar
-                                                </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onViewProduct(product.id)} className="gap-2">
+                                                        <Eye className="w-4 h-4 text-primary" /> Visualizar Detalhes
+                                                    </DropdownMenuItem>
+                                                    {(!isColaborador || (!product.is_approved && product.created_by === currentUser?.id)) && (
+                                                        <>
+                                                            <DropdownMenuItem onClick={() => onEditProduct(product)} className="gap-2">
+                                                                <Edit className="w-4 h-4" /> Editar
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleDelete(product.id)} className="gap-2 text-destructive focus:text-destructive">
+                                                                <Trash2 className="w-4 h-4" /> Eliminar
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </td>
