@@ -263,7 +263,7 @@ const UserManagement = () => {
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </Button>
-                                                {currentUser?.id !== user.id && (
+                                                {currentUser?.id !== user.id && !(!currentUser?.is_superadmin && ((currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id)) && (
                                                     <Button 
                                                         onClick={() => handleDeleteMember(user.id)}
                                                         variant="ghost" 

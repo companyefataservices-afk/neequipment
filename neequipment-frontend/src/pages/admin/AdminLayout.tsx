@@ -45,15 +45,6 @@ interface NavItem {
   badge?: string;
 }
 
-const navItems: NavItem[] = [
-  { id: 'overview', label: 'Dashboard Geral', icon: LayoutDashboard },
-  { id: 'products', label: 'Produtos', icon: Package, badge: '0' },
-  { id: 'categories', label: 'Categorias', icon: FolderTree },
-  { id: 'rfqs', label: 'RFQs', icon: FileText, badge: '0' },
-  { id: 'users', label: 'Minha Equipa', icon: Users },
-  { id: 'settings', label: 'Definições', icon: Settings },
-];
-
 const AdminLayout = () => {
   const [section, setSection] = useState<AdminSection>('overview');
   const [collapsed, setCollapsed] = useState(false);
@@ -68,7 +59,18 @@ const AdminLayout = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+
+  const isColaborador = !user?.is_superadmin && ((user?.categories && user.categories.length > 0) || user?.assigned_category || user?.assigned_category_id);
+
+  const navItems: NavItem[] = [
+    { id: 'overview', label: 'Dashboard Geral', icon: LayoutDashboard },
+    { id: 'products', label: 'Produtos', icon: Package, badge: '0' },
+    { id: 'categories', label: 'Categorias', icon: FolderTree },
+    { id: 'rfqs', label: 'RFQs', icon: FileText, badge: '0' },
+    ...(isColaborador ? [] : [{ id: 'users', label: 'Minha Equipa', icon: Users } as NavItem]),
+    { id: 'settings', label: 'Definições', icon: Settings },
+  ];
 
   useEffect(() => {
     const fetchStats = async () => {
