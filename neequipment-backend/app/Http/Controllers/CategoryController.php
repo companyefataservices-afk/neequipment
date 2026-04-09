@@ -16,11 +16,22 @@ class CategoryController extends Controller
         $user = $request->user();
         $query = Category::withCount('products');
 
-        // Se for um colaborador autenticado, filtramos pelas categorias alocadas
-        if ($user && $user->role === 'collaborator' && !$user->is_superadmin) {
-            $query->whereHas('users', function($q) use ($user) {
-                $q->where('users.id', $user->id);
-            });
+        // Se o user não é superadmin, e tem categorias específicas, filtramos
+        if ($user && !$user->is_superadmin) {
+            $categoryIds = [];
+            
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                $categoryIds = $user->categories()->pluck('categories.id')->toArray();
+            }
+            
+            if ($user->assigned_category_id) {
+                $categoryIds[] = $user->assigned_category_id;
+            }
+
+            // Se for um colaborador (tiver categorias específicas), listamos apenas as que lhe pertencem
+            if (!empty($categoryIds)) {
+                $query->whereIn('id', $categoryIds);
+            }
         }
 
         return response()->json($query->get());
@@ -39,6 +50,14 @@ class CategoryController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name),
         ]);
+
+        $user = $request->user();
+        if ($user && !$user->is_superadmin) {
+            // Check if table exists before attaching
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+                $user->categories()->attach($category->id);
+            }
+        }
 
         return response()->json($category, 201);
     }
