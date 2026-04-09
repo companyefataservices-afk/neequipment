@@ -24,6 +24,18 @@ class AuthController extends Controller
             ]);
         }
 
+        $user->load('addresses');
+        $relations = [];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'assigned_category_id')) {
+            $relations[] = 'assignedCategory';
+        }
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+            $relations[] = 'categories';
+        }
+        if (!empty($relations)) {
+            $user->load($relations);
+        }
+
         return response()->json([
             'user' => $user,
             'token' => $user->createToken('auth_token')->plainTextToken,
@@ -56,7 +68,21 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        return response()->json($request->user()->load('addresses'));
+        $user = $request->user()->load('addresses');
+        
+        $relations = [];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'assigned_category_id')) {
+            $relations[] = 'assignedCategory';
+        }
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
+            $relations[] = 'categories';
+        }
+        
+        if (!empty($relations)) {
+            $user->load($relations);
+        }
+        
+        return response()->json($user);
     }
 
     public function updateProfile(Request $request)
