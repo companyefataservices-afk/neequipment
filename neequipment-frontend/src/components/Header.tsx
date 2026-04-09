@@ -64,10 +64,11 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                 <button
                   key={item.page}
                   onClick={() => onNavigate(item.page)}
-                  className={`text-sm font-semibold tracking-wide transition-colors duration-200 ${currentPage === item.page ? 'text-gold' : 'text-navy-dark hover:text-gold'
+                  className={`group relative text-[13px] uppercase font-bold tracking-widest transition-colors duration-300 ${currentPage === item.page ? 'text-gold' : 'text-navy-dark hover:text-gold'
                     }`}
                 >
                   {item.label}
+                  <span className={`absolute -bottom-1.5 left-0 w-full h-[2px] bg-gold transform origin-left transition-transform duration-300 ${currentPage === item.page ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                 </button>
               ))}
             </nav>
@@ -88,14 +89,14 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                         onNavigate('dashboard');
                       }
                     }}
-                    className={`flex items-center gap-2 text-sm font-semibold tracking-wide transition-colors duration-200 ${currentPage === 'dashboard' ? 'text-gold' : 'text-navy-dark hover:text-gold'}`}
+                    className={`flex items-center gap-2 text-[13px] uppercase font-bold tracking-widest transition-colors duration-200 ${currentPage === 'dashboard' ? 'text-gold' : 'text-navy-dark hover:text-gold'}`}
                   >
                     <UserCircle className="w-5 h-5" />
                     <span>{user?.name || (language === 'PT' ? 'A Minha Conta' : 'My Account')}</span>
                   </button>
                   <button
                     onClick={logout}
-                    className="flex items-center gap-1 text-[11px] font-bold text-destructive hover:text-destructive-foreground hover:bg-destructive/10 px-2 py-1 rounded transition-all uppercase tracking-tighter"
+                    className="flex items-center gap-1 text-[11px] font-bold text-destructive hover:text-destructive-foreground hover:bg-destructive/10 px-2 py-1 rounded transition-all uppercase tracking-widest"
                     title="Terminar Sessão"
                   >
                     <LogOut className="w-3 h-3" />
@@ -105,27 +106,29 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
               ) : (
                 <button
                   onClick={() => navigate('/login', { state: { from: location } })}
-                  className="hidden md:flex items-center gap-2 text-sm font-semibold tracking-wide text-navy-dark hover:text-gold transition-colors duration-200"
+                  className="hidden md:flex items-center gap-2 text-[13px] uppercase font-bold tracking-widest px-5 py-2 border border-gold/50 rounded-full text-navy-dark hover:text-gold hover:border-gold hover:bg-gold/5 shadow-sm hover:shadow-gold/10 transition-all duration-300"
                 >
-                  <LogIn className="w-5 h-5" />
+                  <LogIn className="w-4 h-4" />
                   <span>{language === 'PT' ? 'Entrar' : 'Login'}</span>
                 </button>
               )}
 
               {/* Language Toggle */}
-              <div className="flex items-center gap-1.5 border-r border-border/50 pr-3 mr-1">
+              <div className="flex items-center gap-2 border-r border-border/50 pr-4 mr-2">
                 <button
                   onClick={() => setLanguage('PT')}
-                  className={`text-[11px] font-bold transition-colors ${language === 'PT' ? 'text-gold' : 'text-navy-dark/60 hover:text-gold'}`}
+                  className={`relative text-[12px] font-bold tracking-widest transition-colors pb-1 ${language === 'PT' ? 'text-gold' : 'text-navy-dark/50 hover:text-gold'}`}
                 >
                   PT
+                  {language === 'PT' && <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gold rounded-full" />}
                 </button>
-                <span className="text-navy-dark/20 text-[10px]">|</span>
+                <span className="text-navy-dark/20 text-[10px] pb-1">|</span>
                 <button
                   onClick={() => setLanguage('EN')}
-                  className={`text-[11px] font-bold transition-colors ${language === 'EN' ? 'text-gold' : 'text-navy-dark/60 hover:text-gold'}`}
+                  className={`relative text-[12px] font-bold tracking-widest transition-colors pb-1 ${language === 'EN' ? 'text-gold' : 'text-navy-dark/50 hover:text-gold'}`}
                 >
                   EN
+                  {language === 'EN' && <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gold rounded-full" />}
                 </button>
               </div>
 
@@ -258,7 +261,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                 <button
                   key={item.page}
                   onClick={() => { onNavigate(item.page); setMobileMenuOpen(false); }}
-                  className={`text-left py-3 px-4 rounded-xl text-sm font-semibold transition-colors ${currentPage === item.page ? 'text-gold bg-gold/10' : 'text-navy-dark hover:text-gold hover:bg-gold/5'
+                  className={`text-left py-3 px-4 rounded-xl text-[13px] uppercase font-bold tracking-widest transition-colors ${currentPage === item.page ? 'text-gold bg-gold/10' : 'text-navy-dark hover:text-gold hover:bg-gold/5'
                     }`}
                 >
                   {item.label}
@@ -275,7 +278,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                     }
                     setMobileMenuOpen(false); 
                   }}
-                  className={`text-left py-3 px-4 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 ${currentPage === 'dashboard' ? 'text-gold bg-gold/10' : 'text-navy-dark hover:text-gold hover:bg-gold/5'
+                  className={`text-left py-3 px-4 rounded-xl text-[13px] uppercase font-bold tracking-widest transition-colors flex items-center gap-2 ${currentPage === 'dashboard' ? 'text-gold bg-gold/10' : 'text-navy-dark hover:text-gold hover:bg-gold/5'
                     }`}
                 >
                   <UserCircle className="w-5 h-5 text-gold" />
@@ -290,7 +293,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
                     setMobileMenuOpen(false);
                     onNavigate('home');
                   }}
-                  className="text-left py-3 px-4 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                  className="text-left py-3 px-4 rounded-xl text-[13px] uppercase font-bold tracking-widest text-destructive hover:bg-destructive/10 transition-colors flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   {language === 'PT' ? 'Sair da conta' : 'Logout'}
@@ -300,7 +303,7 @@ const Header = ({ currentPage, onNavigate, onQuoteClick }: HeaderProps) => {
               {!isAuthenticated && (
                 <button
                   onClick={() => { navigate('/login', { state: { from: location } }); setMobileMenuOpen(false); }}
-                  className="text-left py-3 px-4 rounded-xl text-sm font-semibold text-navy-dark hover:bg-gold/5 transition-colors flex items-center gap-2"
+                  className="text-left py-3 px-4 rounded-xl text-[13px] uppercase font-bold tracking-widest text-navy-dark hover:bg-gold/5 transition-colors flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4 text-gold" />
                   {language === 'PT' ? 'Entrar' : 'Login'}

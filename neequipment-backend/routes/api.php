@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Gestão de Categorias
     Route::apiResource('categories', CategoryController::class)->except(['index']);
+    Route::get('/admin/my-categories', [CategoryController::class, 'index']);
 
     // Admin: Gestão de Negociações (Quotes/RFQs)
     Route::get('/admin/quotes', [QuoteController::class, 'index']);

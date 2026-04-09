@@ -30,26 +30,33 @@ const ServicesSection = ({ }: ServicesSectionProps) => {
           <p className="text-muted-foreground max-w-2xl mx-auto">{t.services.description}</p>
         </motion.div>
 
-        <div className="flex justify-center max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="glass-card p-8 max-w-2xl w-full">
-            <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-navy-dark to-navy flex items-center justify-center">
-                <Globe className="w-6 h-6 text-white" />
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="glass-card overflow-hidden">
+            <div className="grid md:grid-cols-2">
+              <div className="p-8 md:p-12 bg-navy-dark text-white flex flex-col justify-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/3" />
+                <Globe className="w-12 h-12 text-gold mb-6 relative z-10" />
+                <h3 className="text-2xl md:text-3xl font-bold mb-4 relative z-10">
+                  {t.services.procurementTitle}
+                </h3>
+                <p className="text-white/80 relative z-10 leading-relaxed">
+                  {t.services.description}
+                </p>
               </div>
-              {t.services.procurementTitle}
-            </h3>
-            <div className="space-y-4">
-              {procurementServices.map((service) => (
-                <div key={service.title} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-navy-dark/10 flex items-center justify-center flex-shrink-0">
-                    <service.icon className="w-5 h-5 text-navy-dark" />
+              <div className="p-8 md:p-12 flex flex-col justify-center space-y-8 bg-white/40">
+                {procurementServices.map((service) => (
+                  <div key={service.title} className="flex items-start gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gold/20">
+                      <service.icon className="w-6 h-6 text-navy-dark" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg text-foreground mb-2">{service.title}</h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-foreground">{service.title}</h4>
-                    <p className="text-sm text-muted-foreground">{service.description}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>

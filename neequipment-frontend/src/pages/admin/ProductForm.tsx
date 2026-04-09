@@ -75,7 +75,7 @@ const ProductForm = ({ product, onSuccess, onCancel }: ProductFormProps) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await api.get('/categories');
+                const response = await api.get('/admin/my-categories');
                 setCategories(response.data);
             } catch (error) {
                 console.error('Error fetching categories:', error);

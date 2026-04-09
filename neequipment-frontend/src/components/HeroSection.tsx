@@ -17,7 +17,10 @@ const HeroSection = ({ onQuoteClick }: HeroSectionProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
-  const [productImages, setProductImages] = useState<{id?: string | number, src: string, alt: string}[]>([]);
+  const [productImages, setProductImages] = useState<{id?: string | number, src: string, alt: string}[]>([{
+    src: DEFAULT_HERO_IMAGE,
+    alt: 'NE Equipment'
+  }]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -37,15 +40,10 @@ const HeroSection = ({ onQuoteClick }: HeroSectionProps) => {
           });
           
           setProductImages(dynamicImages);
-        } else {
-          // If no products with images, set a default brand slide
-          setProductImages([{
-            src: DEFAULT_HERO_IMAGE,
-            alt: 'NE Equipment'
-          }]);
         }
       } catch (error) {
         console.error('Error fetching products for hero:', error);
+        // Em caso de erro, já existe a logo inserida no state inicial falback.
       }
     };
     fetchImages();
@@ -128,16 +126,16 @@ const HeroSection = ({ onQuoteClick }: HeroSectionProps) => {
                             <img 
                               src={productImages[currentIndex]?.src || DEFAULT_HERO_IMAGE} 
                               alt={productImages[currentIndex]?.alt || 'NE Equipment'} 
-                              className={`w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-[2000ms] ${productImages[currentIndex]?.src === DEFAULT_HERO_IMAGE ? 'bg-navy-dark p-12 object-contain' : ''}`} 
+                              className={`w-full h-full object-cover transform transition-transform duration-[2000ms] ${productImages[currentIndex]?.src === DEFAULT_HERO_IMAGE ? 'bg-white/95 p-12 sm:p-20 object-contain scale-100 group-hover:scale-105' : 'scale-100 group-hover:scale-110'}`} 
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 via-navy-dark/20 to-transparent flex flex-col justify-end p-4 sm:p-8">
+                            <div className={`absolute inset-0 flex flex-col justify-end p-4 sm:p-8 ${productImages[currentIndex]?.src === DEFAULT_HERO_IMAGE ? 'bg-gradient-to-t from-navy-dark/95 via-navy-dark/20 to-transparent' : 'bg-gradient-to-t from-navy-dark/90 via-navy-dark/20 to-transparent'}`}>
                               <motion.span 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
                                 className="text-gold text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-1 sm:mb-2"
                               >
-                                {productImages[currentIndex]?.id ? 'Equipamento Industrial' : 'NE Equipment'}
+                                {productImages[currentIndex]?.id ? 'Equipamento Industrial' : 'Consulte o Nosso Catálogo'}
                               </motion.span>
                               <motion.h3 
                                 initial={{ opacity: 0, y: 20 }}
@@ -145,7 +143,7 @@ const HeroSection = ({ onQuoteClick }: HeroSectionProps) => {
                                 transition={{ delay: 0.4 }}
                                 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4"
                               >
-                                {productImages[currentIndex]?.alt}
+                                {productImages[currentIndex]?.id ? productImages[currentIndex]?.alt : 'Soluções Corporativas B2B'}
                               </motion.h3>
                               <motion.div
                                 initial={{ opacity: 0 }}

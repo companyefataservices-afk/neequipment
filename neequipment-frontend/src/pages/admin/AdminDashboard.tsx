@@ -13,8 +13,10 @@ import {
   ShoppingCart,
   Loader2,
   CheckCircle,
-  Save
+  Save,
+  User as UserIcon
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import api from '@/services/api';
 import logoNE from '@/assets/logo-ne-equipment.png';
@@ -70,6 +72,7 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
+  const { user } = useAuth();
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -136,7 +139,9 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
             <img src={logoNE} alt="NE Equipment" className="h-10 md:h-14 w-auto object-contain" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight">Painel de Controlo</h1>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+              {user?.name ? `Olá, ${user.name}` : 'Painel de Controlo'}
+            </h1>
             <p className="text-white/60 text-sm font-medium">Gestão Estratégica & Procurement Regional</p>
           </div>
         </div>

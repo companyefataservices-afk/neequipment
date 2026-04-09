@@ -27,10 +27,10 @@ export const translations = {
     },
     // Hero
     hero: {
-      badge: 'Procurement • Logística • Equipamentos',
-      title: 'Equipamentos e Soluções para o seu',
+      badge: 'Sourcing Estratégico • Logística Global • Equipamentos Industriais',
+      title: 'Equipamentos para o seu',
       titleHighlight: 'Negócio',
-      subtitle: 'Procurement, logística e venda de equipamentos industriais para toda a África Austral.',
+      subtitle: 'Especialistas em procurement, logística integrada e fornecimento de tecnologia industrial em toda a África Austral.',
       requestQuote: 'Registar Conta',
       viewCatalog: 'Ver Catálogo',
       stats: {
@@ -40,8 +40,8 @@ export const translations = {
         commitment: 'COMPROMETIMENTO ÉTICO',
       },
       whyTitle: 'Porquê a',
-      whySubtitle: 'Por que nos escolher',
-      whyDescription: '"Garantimos comodidade, qualidade, eficiência e adicionando valor às necessidades dos nossos clientes."',
+      whySubtitle: 'O Nosso Diferencial',
+      whyDescription: '"Comprometemo-nos com a excelência operacional, garantindo qualidade, transparência e valor estratégico em cada solução para as necessidades do seu negócio."',
       features: {
         logistics: 'Logística Integrada',
         logisticsDesc: 'Cuidamos de todo o processo, desde o sourcing internacional até ao desalfandegamento e entrega final.',
@@ -362,10 +362,10 @@ export const translations = {
       units: 'units',
     },
     hero: {
-      badge: 'Procurement • Logistics • Equipment',
+      badge: 'Strategic Sourcing • Global Logistics • Industrial Equipment',
       title: 'Equipment and Solutions for your',
       titleHighlight: 'Business',
-      subtitle: 'Procurement, logistics, and industrial equipment sales across Southern Africa.',
+      subtitle: 'Specialists in procurement, integrated logistics, and industrial technology supply across Southern Africa.',
       requestQuote: 'Register Account',
       viewCatalog: 'View Catalog',
       stats: {
@@ -375,8 +375,8 @@ export const translations = {
         commitment: 'ETHICAL COMMITMENT',
       },
       whyTitle: 'Why',
-      whySubtitle: 'Why choose us',
-      whyDescription: '"We guarantee comfort, quality, efficiency and added value to our clients\' needs."',
+      whySubtitle: 'Our Competitive Edge',
+      whyDescription: '"We are committed to operational excellence, ensuring quality, transparency, and strategic value in every solution for your business needs."',
       features: {
         logistics: 'Integrated Procurement',
         logisticsDesc: 'We handle the entire process, from international sourcing to customs clearance and final coordination.',
