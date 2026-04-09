@@ -42,6 +42,16 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
+        $isColaborador = $user && !$user->is_superadmin && (
+            (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+            || $user->assigned_category_id
+        );
+
+        if ($isColaborador) {
+            return response()->json(['message' => 'Apenas administradores podem criar categorias.'], 403);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255|unique:categories',
         ]);
@@ -50,14 +60,6 @@ class CategoryController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name),
         ]);
-
-        $user = $request->user();
-        if ($user && !$user->is_superadmin) {
-            // Check if table exists before attaching
-            if (\Illuminate\Support\Facades\Schema::hasTable('user_categories')) {
-                $user->categories()->attach($category->id);
-            }
-        }
 
         return response()->json($category, 201);
     }
@@ -75,6 +77,16 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = $request->user();
+        $isColaborador = $user && !$user->is_superadmin && (
+            (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+            || $user->assigned_category_id
+        );
+
+        if ($isColaborador) {
+            return response()->json(['message' => 'Apenas administradores podem editar categorias.'], 403);
+        }
+
         $category = Category::findOrFail($id);
 
         $request->validate([
@@ -94,8 +106,18 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        $user = $request->user();
+        $isColaborador = $user && !$user->is_superadmin && (
+            (\Illuminate\Support\Facades\Schema::hasTable('user_categories') && tap($user->categories()->count(), fn() => true) > 0) 
+            || $user->assigned_category_id
+        );
+
+        if ($isColaborador) {
+            return response()->json(['message' => 'Apenas administradores podem eliminar categorias.'], 403);
+        }
+
         $category = Category::findOrFail($id);
         $category->delete();
         return response()->json(['message' => 'Categoria removida com sucesso.']);

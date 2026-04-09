@@ -32,6 +32,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import api from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Category {
     id: number;
@@ -49,6 +50,9 @@ const CategoryManagement = () => {
     const [categoryName, setCategoryName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const { user: currentUser } = useAuth();
+
+    const isColaborador = !currentUser?.is_superadmin && ((currentUser?.categories && currentUser.categories.length > 0) || currentUser?.assigned_category || currentUser?.assigned_category_id);
 
     const fetchCategories = async () => {
         try {
@@ -159,9 +163,11 @@ const CategoryManagement = () => {
                     <h2 className="text-2xl font-bold tracking-tight">Gestão de Categorias</h2>
                     <p className="text-muted-foreground text-sm">Organize o seu catálogo de produtos.</p>
                 </div>
-                <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-navy-dark text-white font-bold gap-2">
-                    <Plus className="w-4 h-4" /> Nova Categoria
-                </Button>
+                {!isColaborador && (
+                    <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-navy-dark text-white font-bold gap-2">
+                        <Plus className="w-4 h-4" /> Nova Categoria
+                    </Button>
+                )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-xl border border-border shadow-sm">
@@ -209,24 +215,28 @@ const CategoryManagement = () => {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1">
-                                            <Button 
-                                                variant="ghost" 
-                                                size="icon" 
-                                                className="h-8 w-8 text-muted-foreground hover:text-primary"
-                                                onClick={() => handleOpenDialog(category)}
-                                            >
-                                                <Edit2 className="w-4 h-4" />
-                                            </Button>
-                                            <Button 
-                                                variant="ghost" 
-                                                size="icon" 
-                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                onClick={() => handleDelete(category.id)}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
+                                        {!isColaborador ? (
+                                            <div className="flex justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                    onClick={() => handleOpenDialog(category)}
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                    onClick={() => handleDelete(category.id)}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-muted-foreground text-xs italic">Apenas Visualização</span>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}
