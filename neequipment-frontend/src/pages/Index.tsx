@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
 import CatalogSection from '@/components/CatalogSection';
+import WhySection from '@/components/WhySection';
 import BrandsCarousel from '@/components/BrandsCarousel';
 import ServicesSection from '@/components/ServicesSection';
 import PaymentMethods from '@/components/PaymentMethods';
@@ -102,9 +103,8 @@ const Index = () => {
             transition={{ duration: 0.3 }}
           >
             <HeroSection onQuoteClick={openQuoteForm} />
-            <AboutSection />
             <CatalogSection onNavigateB2B={() => handleNavigate('b2b')} />
-            <BrandsCarousel />
+            <WhySection />
             <ServicesSection />
             <PaymentMethods />
           </motion.main>

@@ -9,8 +9,8 @@ const PaymentMethods = () => {
   const { t } = useLanguage();
 
   const paymentLogos = [
-    { name: 'M-Pesa', image: 'https://enmedhealth.co.mz/_next/image?url=%2Fmpesa.png&w=64&q=75', subtitle: 'Carteira Móvel', scale: 'scale-125' },
-    { name: 'E-Mola', image: 'https://enmedhealth.co.mz/_next/image?url=%2Femola.png&w=64&q=75', subtitle: 'Carteira Móvel', scale: 'scale-150' },
+    { name: 'M-Pesa', image: '/mpesa.png', subtitle: 'Carteira Móvel', scale: 'scale-125 md:scale-150' },
+    { name: 'E-Mola', image: '/emola.png', subtitle: 'Carteira Móvel', scale: 'scale-125 md:scale-150' },
     { name: 'Visa', image: 'https://cdn.jsdelivr.net/gh/rdimascio/icons@master/icons/visa.svg', subtitle: 'Crédito / Débito' },
     { name: 'Mastercard', image: 'https://cdn.jsdelivr.net/gh/rdimascio/icons@master/icons/mastercard.svg', subtitle: 'Crédito / Débito' }
   ];
@@ -54,7 +54,7 @@ const PaymentMethods = () => {
                   <img 
                     src={logo.image} 
                     alt={logo.name} 
-                    className={`max-h-full max-w-full object-contain filter drop-shadow-sm group-hover:drop-shadow-md transition-all brightness-110 ${logo.scale || ''}`}
+                    className={`max-h-full max-w-full object-contain transition-transform duration-300 ${logo.scale || ''}`}
                     loading="lazy"
                   />
                 </div>
