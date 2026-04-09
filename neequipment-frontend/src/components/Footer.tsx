@@ -53,7 +53,12 @@ const Footer = () => {
       <div className="border-t border-white/10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/50">
-            <p>© {new Date().getFullYear()} NE EQUIPMENT MOÇAMBIQUE. {t.footer.allRights} Website: www.neequipment.co.mz</p>
+            <div className="space-y-1 text-center md:text-left">
+              <p>© {new Date().getFullYear()} NE EQUIPMENT MOÇAMBIQUE. {t.footer.allRights}</p>
+              <p className="text-[10px] text-white/30">
+                Desenvolvido por: <a href="mailto:consultoria@efata.co.mz" className="hover:text-gold transition-colors">consultoria@efata.co.mz</a>
+              </p>
+            </div>
             
             <div className="flex items-center gap-3">
               <span className="text-xs uppercase tracking-wider text-white/40">Pagamento:</span>
