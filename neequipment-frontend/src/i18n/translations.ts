@@ -201,7 +201,7 @@ export const translations = {
     contactPage: {
       title: 'Nossas',
       titleHighlight: 'Sedes',
-      subtitle: 'Estamos onde o negócio acontece. Três locais estratégicos para melhor o servir.',
+      subtitle: 'Estamos onde o negócio acontece. Dois locais estratégicos para melhor o servir.',
       sendMessage: 'Envie-nos uma Mensagem',
       fullName: 'Nome Completo',
       corporateEmail: 'E-mail Corporativo',
@@ -523,7 +523,7 @@ export const translations = {
     contactPage: {
       title: 'Our',
       titleHighlight: 'Offices',
-      subtitle: 'We are where business happens. Three strategic locations to better serve you.',
+      subtitle: 'We are where business happens. Two strategic locations to better serve you.',
       sendMessage: 'Send us a Message',
       fullName: 'Full Name',
       corporateEmail: 'Corporate Email',

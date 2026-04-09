@@ -35,7 +35,7 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
           const catProducts = products.filter((p: any) => p.category?.id === cat.id);
           const firstProductWithImage = catProducts.find((p: any) => p.images && p.images.length > 0);
           
-          let coverImage = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop'; // fallback
+          let coverImage = '/logo-ne-equipment.png'; // fallback local logótipo
           if (firstProductWithImage) {
             const imgPath = firstProductWithImage.images.find((i: any) => i.is_primary)?.image_path || firstProductWithImage.images[0].image_path;
             coverImage = `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${imgPath}`;
