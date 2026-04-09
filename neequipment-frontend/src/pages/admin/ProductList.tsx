@@ -10,7 +10,8 @@ import {
     AlertCircle,
     Loader2,
     Eye,
-    CheckCircle2
+    CheckCircle2,
+    XCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProductImageUrl } from '@/utils/imageUtils';
@@ -41,6 +42,7 @@ interface Product {
     }[];
     is_approved?: boolean;
     created_by?: number;
+    creator?: { name: string };
 }
 
 interface ProductListProps {
@@ -185,7 +187,14 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                             </div>
                                             <div>
                                                 <p className="font-bold text-foreground leading-tight">{product.name}</p>
-                                                <p className="text-[11px] text-muted-foreground font-mono">{product.sku || 'SEM SKU'}</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <p className="text-[10px] text-muted-foreground font-mono">{product.sku || 'SEM SKU'}</p>
+                                                    {product.creator && (
+                                                        <span className="text-[10px] text-primary/60 font-medium">
+                                                            • Por: {product.creator.name}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -220,9 +229,14 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-48">
                                                 {!product.is_approved && !isColaborador && (
-                                                    <DropdownMenuItem onClick={() => handleApprove(product.id)} className="gap-2 font-bold text-green-600 focus:text-green-600 focus:bg-green-50">
-                                                        <CheckCircle2 className="w-4 h-4" /> Aprovar e Publicar
-                                                    </DropdownMenuItem>
+                                                    <>
+                                                        <DropdownMenuItem onClick={() => handleApprove(product.id)} className="gap-2 font-bold text-green-600 focus:text-green-600 focus:bg-green-50">
+                                                            <CheckCircle2 className="w-4 h-4" /> Aprovar e Publicar
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleDelete(product.id)} className="gap-2 font-bold text-destructive focus:text-red-600 focus:bg-red-50">
+                                                            <XCircle className="w-4 h-4" /> Rejeitar (Eliminar)
+                                                        </DropdownMenuItem>
+                                                    </>
                                                 )}
                                                     <DropdownMenuItem onClick={() => onViewProduct(product.id)} className="gap-2">
                                                         <Eye className="w-4 h-4 text-primary" /> Visualizar Detalhes

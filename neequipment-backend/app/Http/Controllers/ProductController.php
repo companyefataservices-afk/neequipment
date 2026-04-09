@@ -22,7 +22,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Product::with('images', 'category');
+            $query = Product::with('images', 'category', 'creator');
 
             // O endpoint é público, mas precisamos de ler o token caso a dashboard (admin logado) o chame
             $user = auth('sanctum')->user() ?? $request->user();

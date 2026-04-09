@@ -23,6 +23,7 @@ import api from '@/services/api';
 import { formatDistanceToNow, format, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { generateQuotePDF } from '@/utils/pdfGenerator';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 const safeFormatDistance = (dateStr: string | undefined | null) => {
   if (!dateStr) return 'agora mesmo';
@@ -250,7 +251,7 @@ const MyQuotes = () => {
         {filtered.length > 0 ? filtered.map((quote) => {
           const firstItem = quote.items[0];
           const primaryImage = firstItem?.product?.images?.find((i: any) => i.is_primary)?.image_path || firstItem?.product?.images?.[0]?.image_path;
-          const imageUrl = primaryImage ? (primaryImage.startsWith('data:image') || primaryImage.startsWith('http') ? primaryImage : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${primaryImage}`) : '/placeholder-product.png';
+          const imageUrl = primaryImage ? getProductImageUrl(primaryImage) : '/placeholder-product.png';
           const displayedPrice = quote.total_estimated_value > 0 ? (Number(quote.total_estimated_value)).toLocaleString('pt-MZ') : 'A definir';
 
           return (
@@ -393,9 +394,7 @@ const MyQuotes = () => {
                                 <div className="w-8 h-8 rounded border border-border overflow-hidden bg-muted/20">
                                   {(() => {
                                       const primaryImage = item.product?.images?.find((img: any) => img.is_primary)?.image_path || item.product?.images?.[0]?.image_path;
-                                      const imageUrl = primaryImage
-                                        ? (primaryImage.startsWith('data:image') || primaryImage.startsWith('http') ? primaryImage : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${primaryImage}`)
-                                        : '/placeholder-product.png';
+                                      const imageUrl = primaryImage ? getProductImageUrl(primaryImage) : '/placeholder-product.png';
                                       return <img src={imageUrl} alt="" className="w-full h-full object-cover" />;
                                   })()}
                                 </div>

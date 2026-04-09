@@ -17,6 +17,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import api from '@/services/api';
+import { getProductImageUrl } from '@/utils/imageUtils';
+
 
 interface ProductImage {
     id: number;
@@ -35,6 +37,7 @@ interface Product {
     specifications: any;
     images?: ProductImage[];
     category?: { name: string };
+    creator?: { name: string };
 }
 
 interface AdminProductDetailProps {
@@ -82,7 +85,7 @@ const AdminProductDetail = ({ productId, onBack, onEdit }: AdminProductDetailPro
     }
 
     const images = product.images?.length
-        ? product.images.map(img => img.image_path?.startsWith('data:image') || img.image_path?.startsWith('http') ? img.image_path : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${img.image_path}`)
+        ? product.images.map(img => getProductImageUrl(img.image_path))
         : ['/placeholder-product.png'];
 
     return (
@@ -131,7 +134,14 @@ const AdminProductDetail = ({ productId, onBack, onEdit }: AdminProductDetailPro
                                     {product.category?.name || 'Sem Categoria'}
                                 </Badge>
                                 <h2 className="text-2xl font-bold text-navy-dark leading-tight">{product.name}</h2>
-                                <p className="text-sm text-muted-foreground font-mono mt-1">SKU: {product.sku || 'N/A'}</p>
+                                <div className="flex items-center gap-3 mt-1">
+                                    <p className="text-sm text-muted-foreground font-mono">SKU: {product.sku || 'N/A'}</p>
+                                    {product.creator && (
+                                        <Badge variant="outline" className="border-primary/20 text-primary/60 text-[10px] font-medium">
+                                            Submetido por: {product.creator.name}
+                                        </Badge>
+                                    )}
+                                </div>
                             </div>
                             <div className="text-right">
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${product.stock_quantity > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>

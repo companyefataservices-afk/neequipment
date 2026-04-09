@@ -27,6 +27,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import api from '@/services/api';
 import { generateQuotePDF } from '@/utils/pdfGenerator';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 const safeDateFormat = (dateStr: string | undefined | null, formatStr: string) => {
   if (!dateStr) return 'Data não disponível';
@@ -349,9 +350,7 @@ export default function AdminQuoteDetail({ quoteId, onBack }: AdminQuoteDetailPr
                           <div className="w-12 h-12 rounded-lg border border-border overflow-hidden bg-muted/50">
                             {(() => {
                               const primaryImage = item.product?.images?.find(img => img.is_primary)?.image_path || item.product?.images?.[0]?.image_path;
-                              const imageUrl = primaryImage
-                                ? (primaryImage.startsWith('data:image') || primaryImage.startsWith('http') ? primaryImage : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${primaryImage}`)
-                                : '/placeholder-product.png';
+                              const imageUrl = primaryImage ? getProductImageUrl(primaryImage) : '/placeholder-product.png';
                               return <img src={imageUrl} alt="" className="w-full h-full object-cover" />;
                             })()}
                           </div>
