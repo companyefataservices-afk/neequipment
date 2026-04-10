@@ -214,7 +214,6 @@ const ProductDetails = () => {
                                     <Truck className="w-5 h-5 text-gold-dark mt-0.5 shrink-0" />
                                     <div className="flex-1">
                                         <p className="font-bold text-navy-dark">Entrega em Moçambique</p>
-                                        <p className="text-gray-500 mb-2">2 a 5 dias úteis</p>
                                         <button
                                             onClick={() => setIsFreightModalOpen(true)}
                                             className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gold-dark border border-gold/40 bg-gold/5 hover:bg-gold/15 px-3 py-1.5 rounded-lg transition-all duration-200"

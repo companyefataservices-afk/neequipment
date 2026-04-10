@@ -262,34 +262,47 @@ const B2BCatalog = () => {
                 }
 
                 return (
-                  <motion.div key={product.id} onClick={() => navigate(`/product/${product.id}`)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 30 }} transition={{ delay: index * 0.1 }} className="glass-card overflow-hidden hover:shadow-2xl transition-all group cursor-pointer relative">
-                    <div className="aspect-[4/4.5] relative overflow-hidden">
+                  <motion.div key={product.id} onClick={() => navigate(`/product/${product.id}`)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="glass-card overflow-hidden hover:shadow-2xl transition-all group cursor-pointer relative flex flex-col h-full">
+                    <div className="aspect-[4/4.5] relative overflow-hidden shrink-0">
                       <Badge className="absolute top-3 left-3 z-10 bg-navy-dark/90 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-lg border-gold/20 shadow-lg">
                         {product.category?.name || 'Industrial'}
                       </Badge>
                       <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    </div>
+                    <div className="p-5 flex flex-col flex-1">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-gold uppercase tracking-widest">{product.brand || 'Original'}</span>
+                        <div className="flex gap-1 opacity-20">
+                          <div className="w-1 h-1 rounded-full bg-navy-dark" />
+                          <div className="w-1 h-1 rounded-full bg-navy-dark" />
+                          <div className="w-1 h-1 rounded-full bg-navy-dark" />
+                        </div>
+                      </div>
                       
-                      {/* Overlay Request Button - Hidden for Admins */}
-                      {user?.role !== 'admin' && (
-                        <div className="absolute inset-0 bg-navy-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6">
+                      <h3 className="font-bold text-foreground mb-3 line-clamp-1 text-base group-hover:text-gold transition-colors">{product.name}</h3>
+                      
+                      <div className="flex items-center gap-4 mb-4 text-[9px] text-muted-foreground uppercase font-semibold tracking-tighter">
+                        <span className="flex items-center gap-1.5"><Truck className="w-3 h-3 text-gold" /> Envio Ágil</span>
+                        <span className="flex items-center gap-1.5"><Shield className="w-3 h-3 text-gold" /> Garantia</span>
+                      </div>
+                      
+                      <div className="mt-auto space-y-4">
+                        {user?.role !== 'admin' && (
                           <Button 
-                            size="lg" 
                             onClick={(e) => { e.stopPropagation(); handleAddToQuote(product); }} 
-                            className="bg-gold hover:bg-gold-light text-navy-dark font-black text-xs h-12 px-6 rounded-2xl shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 hover:scale-105"
+                            className="w-full bg-gold hover:bg-gold-light text-navy-dark font-bold text-xs h-10 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                           >
                             {t.b2bCatalog.quote}
-                            <Plus className="w-4 h-4 ml-2" />
+                            <Plus className="w-4 h-4" />
                           </Button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-bold text-foreground mb-2 line-clamp-1 text-base group-hover:text-gold transition-colors">{product.name}</h3>
-                      <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/10">
-                        <span className="text-[10px] text-muted-foreground font-mono tabular-nums bg-muted/50 px-2 py-0.5 rounded">SKU: {product.sku}</span>
-                        <div className="flex items-center gap-1.5">
-                           <Shield className="w-3.5 h-3.5 text-gold" />
-                           <div className="w-2 h-2 rounded-full bg-whatsapp animate-pulse" />
+                        )}
+                        
+                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/10">
+                          <span className="text-[10px] text-muted-foreground font-mono tabular-nums bg-muted/50 px-2 py-0.5 rounded">SKU: {product.sku}</span>
+                          <div className="flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-whatsapp animate-pulse" />
+                             <span className="text-[9px] font-bold text-whatsapp uppercase tracking-tighter">Disponível</span>
+                          </div>
                         </div>
                       </div>
                     </div>
