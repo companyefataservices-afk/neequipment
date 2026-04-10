@@ -67,6 +67,22 @@ const formatMZN = (v: number) => {
   return (v / 1000000).toFixed(1) + 'M';
 };
 
+const number_format = (number: number | string, decimals = 0, dec_point = ',', thousands_sep = '.') => {
+  const n = !isFinite(+number) ? 0 : +number;
+  const prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
+  const sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep;
+  const dec = (typeof dec_point === 'undefined') ? '.' : dec_point;
+  const s = (prec > 0 ? n.toFixed(prec) : Math.round(n).toString()).split('.');
+  if (s[0].length > 3) {
+    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+  }
+  if ((s[1] || '').length < prec) {
+    s[1] = s[1] || '';
+    s[1] += new Array(prec - s[1].length + 1).join('0');
+  }
+  return s.join(dec);
+};
+
 interface AdminDashboardProps {
   onAddProduct?: () => void;
 }
@@ -112,6 +128,8 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
     kpis = [], 
     revenueData = [], 
     statusDistribution = [], 
+    categoryRevenue = [],
+    topProducts = [],
     funnelData = [], 
     recentOrders = [], 
     alerts = [] 
@@ -123,6 +141,7 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
       case 'FileText': return FileText;
       case 'Package': return Package;
       case 'ShoppingCart': return ShoppingCart;
+      case 'Clock': return Clock;
       default: return TrendingUp;
     }
   };
@@ -270,13 +289,91 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
               </ResponsiveContainer>
             </div>
             <div className="flex-1 w-full space-y-2.5">
-              {statusDistribution.map((s: any, i: number) => (
+              {statusDistribution.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center">Nenhum pedido registado.</p>
+              ) : statusDistribution.map((s: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 text-sm p-1.5 hover:bg-muted/50 rounded-lg transition-colors">
                   <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: s.color }} />
                   <span className="text-muted-foreground flex-1 truncate font-medium">{s.name}</span>
                   <span className="font-bold text-foreground bg-muted px-2 py-0.5 rounded-md min-w-[30px] text-center">{s.value}</span>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Product & Category Stats Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Products Chart */}
+        <Card className="glass-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Package className="w-4 h-4 text-primary" /> Top 5 Produtos (Quantidade)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={topProducts} layout="vertical" margin={{ left: 40, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(210 20% 92%)" />
+                <XAxis type="number" hide />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  tick={{ fontSize: 10, width: 100 }} 
+                  width={100}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
+                  contentStyle={{ borderRadius: '8px', border: 'none' }}
+                />
+                <Bar 
+                  dataKey="total_sold" 
+                  name="Unidades" 
+                  fill="hsl(210, 100%, 20%)" 
+                  radius={[0, 4, 4, 0]}
+                  barSize={20}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Category Revenue Breakdown */}
+        <Card className="glass-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-whatsapp" /> Receita por Categoria (MZN)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 pt-2">
+              {categoryRevenue.length === 0 ? (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm italic">
+                  Dados insuficientes para gerar ranking.
+                </div>
+              ) : categoryRevenue.map((cat: any, i: number) => {
+                const totalRev = categoryRevenue.reduce((acc: number, curr: any) => acc + Number(curr.revenue), 0);
+                const pct = (Number(cat.revenue) / totalRev) * 100;
+                return (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-sm font-bold text-navy-dark">{cat.name}</span>
+                      <span className="text-xs font-mono font-bold text-primary">
+                        {number_format(cat.revenue, 0, ',', '.')} MT
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted/50 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gold transition-all duration-1000" 
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

@@ -18,15 +18,22 @@ class DashboardController extends Controller
         $startOfCurrentMonth = Carbon::now()->startOfMonth();
         $startOfPreviousMonth = Carbon::now()->subMonth()->startOfMonth();
 
-        // Receita Total Atual
-        $totalRevenueCurrent = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
+        // Receita Confirmada Atual (Paid, Delivered)
+        $confirmedRevenueCurrent = Order::whereIn('status', ['paid', 'delivered'])
             ->where('created_at', '>=', $startOfCurrentMonth)
             ->sum('total_amount');
 
-        // Receita Total Anterior
+        // Receita em Processamento (Processing, Shipped)
+        $pendingRevenueCurrent = Order::whereIn('status', ['processing', 'shipped'])
+            ->where('created_at', '>=', $startOfCurrentMonth)
+            ->sum('total_amount');
+
+        // Receita Total Anterior (para comparação)
         $totalRevenuePrevious = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
             ->whereBetween('created_at', [$startOfPreviousMonth, clone $startOfCurrentMonth])
             ->sum('total_amount');
+
+        $totalRevenueCurrent = $confirmedRevenueCurrent + $pendingRevenueCurrent;
 
         $revenueChange = $totalRevenuePrevious > 0 
             ? (($totalRevenueCurrent - $totalRevenuePrevious) / $totalRevenuePrevious) * 100 
@@ -40,38 +47,40 @@ class DashboardController extends Controller
 
         $activeProductsCount = Product::count();
         $pendingOrdersCount = Order::where('status', 'pending_payment')->count();
+        $totalOrdersCount = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])->count();
+        $averageOrderValue = $totalOrdersCount > 0 ? $confirmedRevenueCurrent / $totalOrdersCount : 0;
         
         $kpis = [
             [
-                'label' => 'Receita do Mês (MZN)',
-                'value' => number_format($totalRevenueCurrent, 0, ',', '.'),
+                'label' => 'Receita Confirmada (Paga)',
+                'value' => number_format($confirmedRevenueCurrent, 0, ',', '.') . ' MT',
                 'change' => ($revenueChange >= 0 ? '+' : '') . number_format($revenueChange, 1) . '%',
                 'trend' => $revenueChange >= 0 ? 'up' : 'down',
                 'icon' => 'DollarSign',
                 'color' => 'text-whatsapp',
             ],
             [
-                'label' => 'RFQs do Mês',
-                'value' => (string)$quotesCountCurrent,
-                'change' => ($quotesChange >= 0 ? '+' : '') . number_format($quotesChange, 1) . '%',
-                'trend' => $quotesChange >= 0 ? 'up' : 'down',
-                'icon' => 'FileText',
+                'label' => 'Em Processamento (Estimado)',
+                'value' => number_format($pendingRevenueCurrent, 0, ',', '.') . ' MT',
+                'change' => 'Pipeline',
+                'trend' => 'up',
+                'icon' => 'Clock',
                 'color' => 'text-primary',
             ],
             [
-                'label' => 'Produtos no Catálogo',
-                'value' => (string)$activeProductsCount,
-                'change' => 'Total',
+                'label' => 'Ticket Médio (Vendas)',
+                'value' => number_format($averageOrderValue, 0, ',', '.') . ' MT',
+                'change' => 'Eficiência',
                 'trend' => 'up',
-                'icon' => 'Package',
+                'icon' => 'ShoppingCart',
                 'color' => 'text-accent',
             ],
             [
-                'label' => 'Pedidos Pendentes (Sempre)',
-                'value' => (string)$pendingOrdersCount,
-                'change' => 'Ação Necessária',
-                'trend' => 'down',
-                'icon' => 'ShoppingCart',
+                'label' => 'Produtos Activos',
+                'value' => (string)$activeProductsCount,
+                'change' => 'Catálogo',
+                'trend' => 'up',
+                'icon' => 'Package',
                 'color' => 'text-orange',
             ],
         ];
@@ -80,14 +89,13 @@ class DashboardController extends Controller
         $revenueData = [];
         for ($i = 5; $i >= 0; $i--) {
             $currentDate = Carbon::now()->subMonths($i);
-            $monthName = $currentDate->shortMonthName;
+            $monthName = $currentDate->translatedFormat('M'); // Localized month name
             
             $monthRevenue = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
                 ->whereMonth('created_at', $currentDate->month)
                 ->whereYear('created_at', $currentDate->year)
                 ->sum('total_amount');
 
-            // Find equivalent previous month revenue (e.g., month last year? no, let's just do previous month to compare)
             $previousDate = $currentDate->copy()->subMonth();
             $prevMonthRevenue = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
                 ->whereMonth('created_at', $previousDate->month)
@@ -95,7 +103,7 @@ class DashboardController extends Controller
                 ->sum('total_amount');
             
             $revenueData[] = [
-                'month' => $monthName,
+                'month' => ucfirst($monthName),
                 'atual' => (float)$monthRevenue,
                 'anterior' => (float)$prevMonthRevenue
             ];
@@ -132,10 +140,33 @@ class DashboardController extends Controller
             ];
         });
 
-        // 4. Funnel Data
+        // 4. Statistics by Category
+        $categoryRevenue = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('orders.status', ['paid', 'processing', 'shipped', 'delivered'])
+            ->select('categories.name', DB::raw('SUM(order_items.quantity * order_items.price_at_time) as revenue'))
+            ->groupBy('categories.id', 'categories.name')
+            ->orderByDesc('revenue')
+            ->limit(5)
+            ->get();
+
+        // 5. Top Selling Products
+        $topProducts = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('orders.status', ['paid', 'processing', 'shipped', 'delivered'])
+            ->select('products.name', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
+        // 6. Funnel Data
         $funnelData = [
-            ['stage' => 'RFQs Totais', 'value' => Quote::count()],
-            ['stage' => 'Cotações Aprovadas', 'value' => Quote::where('status', 'approved')->count()],
+            ['stage' => 'RFQs Enviadas', 'value' => Quote::count()],
+            ['stage' => 'Aprovadas / Negociação', 'value' => Quote::where('status', 'approved')->count()],
             ['stage' => 'Pedidos Convertidos', 'value' => Order::count()],
         ];
 
@@ -172,6 +203,8 @@ class DashboardController extends Controller
             'kpis' => $kpis,
             'revenueData' => $revenueData,
             'statusDistribution' => $statusDistribution,
+            'categoryRevenue' => $categoryRevenue,
+            'topProducts' => $topProducts,
             'funnelData' => $funnelData,
             'recentOrders' => $recentOrders,
             'alerts' => $alerts

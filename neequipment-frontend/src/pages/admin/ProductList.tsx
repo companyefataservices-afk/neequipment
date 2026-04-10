@@ -256,7 +256,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onViewProduct }: ProductList
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-48">
-                                                {(!isColaborador && (!product.is_approved || product.delete_requested)) && (
+                                                {(currentUser?.role === 'admin' || currentUser?.is_superadmin) && (!product.is_approved || product.delete_requested) && (
                                                     <>
                                                         <DropdownMenuItem onClick={() => handleApprove(product.id)} className="gap-2 font-bold text-green-600 focus:text-green-600 focus:bg-green-50">
                                                             <CheckCircle2 className="w-4 h-4" /> {product.delete_requested ? 'Aprovar Remoção' : 'Aprovar Publicação'}
