@@ -202,8 +202,8 @@ const B2BCatalog = () => {
             )}
 
             <div className={viewMode === 'grid' 
-              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" 
-              : "flex flex-col gap-4"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" 
+              : "flex flex-col gap-6"
             }>
               {isLoading ? (
                 <div className="col-span-full py-20 text-center">
@@ -263,33 +263,36 @@ const B2BCatalog = () => {
                 }
 
                 return (
-                  <motion.div key={product.id} onClick={() => navigate(`/product/${product.id}`)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="glass-card overflow-hidden hover:shadow-2xl transition-all group cursor-pointer relative">
-                    <div className="aspect-square relative overflow-hidden">
-                      <Badge className="absolute top-2 left-2 z-10 bg-navy-dark/80 backdrop-blur-sm text-white text-[8px] px-1.5 py-0">
+                  <motion.div key={product.id} onClick={() => navigate(`/product/${product.id}`)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 30 }} transition={{ delay: index * 0.1 }} className="glass-card overflow-hidden hover:shadow-2xl transition-all group cursor-pointer relative">
+                    <div className="aspect-[4/4.5] relative overflow-hidden">
+                      <Badge className="absolute top-3 left-3 z-10 bg-navy-dark/90 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-lg border-gold/20 shadow-lg">
                         {product.category?.name || 'Industrial'}
                       </Badge>
-                      <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                       
                       {/* Overlay Request Button - Hidden for Admins */}
                       {user?.role !== 'admin' && (
-                        <div className="absolute inset-0 bg-navy-dark/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-navy-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6">
                           <Button 
-                            size="sm" 
+                            size="lg" 
                             onClick={(e) => { e.stopPropagation(); handleAddToQuote(product); }} 
-                            className="bg-gold hover:bg-gold-light text-navy-dark font-bold text-[10px] h-8 px-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform"
+                            className="bg-gold hover:bg-gold-light text-navy-dark font-black text-xs h-12 px-6 rounded-2xl shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 hover:scale-105"
                           >
                             {t.b2bCatalog.quote}
-                            <Plus className="w-3 h-3 ml-1" />
+                            <Plus className="w-4 h-4 ml-2" />
                           </Button>
                         </div>
                       )}
                     </div>
-                    <div className="p-3">
-                      <h3 className="font-bold text-foreground mb-1 line-clamp-1 text-sm">{product.name}</h3>
-                      <p className="text-[10px] text-muted-foreground mb-3 line-clamp-2 leading-relaxed h-7">{product.description}</p>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[9px] text-muted-foreground font-mono truncate">SKU: {product.sku}</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold/50" />
+                    <div className="p-5">
+                      <h3 className="font-bold text-foreground mb-2 line-clamp-1 text-base group-hover:text-gold transition-colors">{product.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-4 line-clamp-2 leading-relaxed h-8">{product.description}</p>
+                      <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/10">
+                        <span className="text-[10px] text-muted-foreground font-mono tabular-nums bg-muted/50 px-2 py-0.5 rounded">SKU: {product.sku}</span>
+                        <div className="flex items-center gap-1.5">
+                           <Shield className="w-3.5 h-3.5 text-gold" />
+                           <div className="w-2 h-2 rounded-full bg-whatsapp animate-pulse" />
+                        </div>
                       </div>
                     </div>
                   </motion.div>

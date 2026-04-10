@@ -99,7 +99,7 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
               Nenhuma categoria com produtos disponível de momento.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
               {categories.map((category, index) => (
                 <motion.div key={category.name} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }} className="group cursor-pointer" onClick={onNavigateB2B}>
                   <div className="glass-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
