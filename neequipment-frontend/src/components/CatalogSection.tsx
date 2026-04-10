@@ -72,7 +72,7 @@ const CatalogSection = ({ onNavigateB2B }: CatalogSectionProps) => {
           <p className="text-muted-foreground max-w-2xl mx-auto">{t.catalog.description}</p>
         </motion.div>
 
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {!user && (
             <div className="mb-8 p-4 glass-card bg-navy-dark/5 flex flex-col sm:flex-row items-center justify-center gap-4">
               <p className="text-center text-sm text-muted-foreground">

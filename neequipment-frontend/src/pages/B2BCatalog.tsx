@@ -236,10 +236,9 @@ const B2BCatalog = () => {
                             <h3 className="font-bold text-lg text-foreground group-hover:text-gold transition-colors">{product.name}</h3>
                             <Badge variant="outline" className="text-[10px] border-gold/20 text-gold uppercase tracking-tighter h-5">{product.brand || 'Original'}</Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 max-w-2xl">{product.description}</p>
                           <div className="flex items-center gap-4 text-[11px] text-muted-foreground tabular-nums">
                             <span className="bg-muted px-2 py-0.5 rounded font-mono">SKU: {product.sku}</span>
-                            <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-gold" /> Qualidade Garantida</span>
+                            <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-gold" /> Qualidade Garantida</span>
                           </div>
                         </div>
 
@@ -286,7 +285,6 @@ const B2BCatalog = () => {
                     </div>
                     <div className="p-5">
                       <h3 className="font-bold text-foreground mb-2 line-clamp-1 text-base group-hover:text-gold transition-colors">{product.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-4 line-clamp-2 leading-relaxed h-8">{product.description}</p>
                       <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/10">
                         <span className="text-[10px] text-muted-foreground font-mono tabular-nums bg-muted/50 px-2 py-0.5 rounded">SKU: {product.sku}</span>
                         <div className="flex items-center gap-1.5">
