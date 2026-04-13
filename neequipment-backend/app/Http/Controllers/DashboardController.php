@@ -23,20 +23,30 @@ class DashboardController extends Controller
             ->where('created_at', '>=', $startOfCurrentMonth)
             ->sum('total_amount');
 
-        // Receita em Processamento (Processing, Shipped)
-        $pendingRevenueCurrent = Order::whereIn('status', ['processing', 'shipped'])
+        // Receita em Pipeline (Processing, Shipped + Approved Quotes)
+        $pendingOrdersRevenue = Order::whereIn('status', ['processing', 'shipped'])
             ->where('created_at', '>=', $startOfCurrentMonth)
             ->sum('total_amount');
+
+        $approvedQuotesRevenue = Quote::whereIn('status', ['approved', 'payment_reported'])
+            ->where('created_at', '>=', $startOfCurrentMonth)
+            ->sum('total_estimated_value');
+
+        $pipelineRevenueCurrent = $pendingOrdersRevenue + $approvedQuotesRevenue;
+
+        // Receita Total Ganha (Confirmada + Pipeline)
+        $totalEarnedCurrent = $confirmedRevenueCurrent + $pipelineRevenueCurrent;
 
         // Receita Total Anterior (para comparação)
         $totalRevenuePrevious = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
             ->whereBetween('created_at', [$startOfPreviousMonth, clone $startOfCurrentMonth])
-            ->sum('total_amount');
-
-        $totalRevenueCurrent = $confirmedRevenueCurrent + $pendingRevenueCurrent;
+            ->sum('total_amount') + 
+            Quote::whereIn('status', ['approved', 'payment_reported', 'converted', 'completed'])
+            ->whereBetween('created_at', [$startOfPreviousMonth, clone $startOfCurrentMonth])
+            ->sum('total_estimated_value');
 
         $revenueChange = $totalRevenuePrevious > 0 
-            ? (($totalRevenueCurrent - $totalRevenuePrevious) / $totalRevenuePrevious) * 100 
+            ? (($totalEarnedCurrent - $totalRevenuePrevious) / $totalRevenuePrevious) * 100 
             : 0;
 
         $quotesCountCurrent = Quote::where('created_at', '>=', $startOfCurrentMonth)->count();
@@ -46,13 +56,12 @@ class DashboardController extends Controller
             : 0;
 
         $activeProductsCount = Product::count();
-        $pendingOrdersCount = Order::where('status', 'pending_payment')->count();
         $totalOrdersCount = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])->count();
         $averageOrderValue = $totalOrdersCount > 0 ? $confirmedRevenueCurrent / $totalOrdersCount : 0;
         
         $kpis = [
             [
-                'label' => 'Receita Confirmada (Paga)',
+                'label' => 'Receita Realizada (Paga)',
                 'value' => number_format($confirmedRevenueCurrent, 0, ',', '.') . ' MT',
                 'change' => ($revenueChange >= 0 ? '+' : '') . number_format($revenueChange, 1) . '%',
                 'trend' => $revenueChange >= 0 ? 'up' : 'down',
@@ -60,9 +69,9 @@ class DashboardController extends Controller
                 'color' => 'text-whatsapp',
             ],
             [
-                'label' => 'Em Processamento (Estimado)',
-                'value' => number_format($pendingRevenueCurrent, 0, ',', '.') . ' MT',
-                'change' => 'Pipeline',
+                'label' => 'Pipeline (Ganhos Potenciais)',
+                'value' => number_format($pipelineRevenueCurrent, 0, ',', '.') . ' MT',
+                'change' => 'Expectativa',
                 'trend' => 'up',
                 'icon' => 'Clock',
                 'color' => 'text-primary',
@@ -85,26 +94,38 @@ class DashboardController extends Controller
             ],
         ];
 
-        // 2. Revenue Data (Last 6 months)
+        // 2. Revenue Data (Last 6 months) - Including both realized and potential
         $revenueData = [];
         for ($i = 5; $i >= 0; $i--) {
             $currentDate = Carbon::now()->subMonths($i);
             $monthName = $currentDate->translatedFormat('M'); // Localized month name
             
-            $monthRevenue = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
+            $monthOrderRevenue = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
                 ->whereMonth('created_at', $currentDate->month)
                 ->whereYear('created_at', $currentDate->year)
                 ->sum('total_amount');
 
+            $monthQuoteRevenue = Quote::whereIn('status', ['approved', 'payment_reported'])
+                ->whereMonth('created_at', $currentDate->month)
+                ->whereYear('created_at', $currentDate->year)
+                ->sum('total_estimated_value');
+
+            $totalMonthRevenue = $monthOrderRevenue + $monthQuoteRevenue;
+
+            // Simple projection for "anterior" line
             $previousDate = $currentDate->copy()->subMonth();
             $prevMonthRevenue = Order::whereIn('status', ['paid', 'processing', 'shipped', 'delivered'])
                 ->whereMonth('created_at', $previousDate->month)
                 ->whereYear('created_at', $previousDate->year)
-                ->sum('total_amount');
+                ->sum('total_amount') +
+                Quote::whereIn('status', ['approved', 'payment_reported'])
+                ->whereMonth('created_at', $previousDate->month)
+                ->whereYear('created_at', $previousDate->year)
+                ->sum('total_estimated_value');
             
             $revenueData[] = [
                 'month' => ucfirst($monthName),
-                'atual' => (float)$monthRevenue,
+                'atual' => (float)$totalMonthRevenue,
                 'anterior' => (float)$prevMonthRevenue
             ];
         }
