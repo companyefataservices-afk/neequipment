@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, FileText, Search, Filter } from 'lucide-react';
+import { Eye, FileText, Search, Filter, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +48,16 @@ export default function AdminQuoteList({ onViewQuote }: AdminQuoteListProps) {
       console.error('Error fetching quotes:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteQuote = async (id: number) => {
+    if (!window.confirm('Tem certeza que deseja remover esta negociação da sua lista?')) return;
+    try {
+      await api.delete(`/quotes/${id}`);
+      setQuotes(prev => prev.filter(q => q.id !== id));
+    } catch (error) {
+      console.error('Error deleting quote:', error);
     }
   };
 
@@ -157,15 +167,25 @@ export default function AdminQuoteList({ onViewQuote }: AdminQuoteListProps) {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="gap-2"
-                        onClick={() => onViewQuote(quote.id)}
-                      >
-                        <Eye className="w-4 h-4" />
-                        Ver / Negociar
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="gap-2"
+                          onClick={() => onViewQuote(quote.id)}
+                        >
+                          <Eye className="w-4 h-4" />
+                          Ver / Negociar
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors"
+                          onClick={() => handleDeleteQuote(quote.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </td>
                   </motion.tr>
                 ))

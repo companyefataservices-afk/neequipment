@@ -56,11 +56,11 @@ const DashboardHome = ({ onNavigate }: DashboardHomeProps) => {
   const userName = user?.name || 'Cliente';
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
+    <div className="space-y-6 sm:space-y-10 animate-in fade-in duration-500">
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="max-w-xl">
-          <h2 className="text-3xl font-bold text-navy-dark mb-3">Bem-vindo, {userName}.</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-navy-dark mb-2 sm:mb-3">Bem-vindo, {userName}.</h2>
           <p className="text-gray-600 text-[15px] leading-relaxed">
             Aqui está o resumo da sua actividade B2B. Você pode acompanhar as suas 
             <button onClick={() => onNavigate('quotes')} className="text-navy hover:underline font-bold px-1 text-primary">negociações de preço</button> 
@@ -74,37 +74,37 @@ const DashboardHome = ({ onNavigate }: DashboardHomeProps) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-border shadow-sm group hover:border-primary/30 transition-all">
-          <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-all">
-            <FileText className="w-6 h-6" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border shadow-sm group hover:border-primary/30 transition-all text-left">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary mb-3 sm:mb-4 group-hover:bg-primary group-hover:text-white transition-all">
+            <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Total de Orçamentos</p>
-          <p className="text-3xl font-black text-navy-dark">{stats.total}</p>
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Total Orçamentos</p>
+          <p className="text-2xl sm:text-3xl font-black text-navy-dark">{stats.total}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-border shadow-sm group hover:border-gold/30 transition-all">
-          <div className="w-12 h-12 rounded-xl bg-gold/5 flex items-center justify-center text-gold mb-4 group-hover:bg-gold group-hover:text-navy-dark transition-all">
-            <Clock className="w-6 h-6" />
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border shadow-sm group hover:border-gold/30 transition-all text-left">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gold/5 flex items-center justify-center text-gold mb-3 sm:mb-4 group-hover:bg-gold group-hover:text-navy-dark transition-all">
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Aguardando Resposta</p>
-          <p className="text-3xl font-black text-navy-dark">{stats.pending}</p>
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Pendentes</p>
+          <p className="text-2xl sm:text-3xl font-black text-navy-dark">{stats.pending}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-border shadow-sm group hover:border-blue-500/30 transition-all">
-          <div className="w-12 h-12 rounded-xl bg-blue-500/5 flex items-center justify-center text-blue-500 mb-4 group-hover:bg-blue-500 group-hover:text-white transition-all">
-            <TrendingDown className="w-6 h-6" />
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border shadow-sm group hover:border-blue-500/30 transition-all text-left">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-500/5 flex items-center justify-center text-blue-500 mb-3 sm:mb-4 group-hover:bg-blue-500 group-hover:text-white transition-all">
+            <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Em Negociação</p>
-          <p className="text-3xl font-black text-navy-dark">{stats.responded}</p>
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Negociação</p>
+          <p className="text-2xl sm:text-3xl font-black text-navy-dark">{stats.responded}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-border shadow-sm group hover:border-whatsapp/30 transition-all">
-          <div className="w-12 h-12 rounded-xl bg-whatsapp/5 flex items-center justify-center text-whatsapp mb-4 group-hover:bg-whatsapp group-hover:text-white transition-all">
-            <CheckCircle2 className="w-6 h-6" />
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-border shadow-sm group hover:border-whatsapp/30 transition-all text-left">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-whatsapp/5 flex items-center justify-center text-whatsapp mb-3 sm:mb-4 group-hover:bg-whatsapp group-hover:text-white transition-all">
+            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Aprovados / Pagos</p>
-          <p className="text-3xl font-black text-navy-dark">{stats.approved}</p>
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Aprovados</p>
+          <p className="text-2xl sm:text-3xl font-black text-navy-dark">{stats.approved}</p>
         </div>
       </div>
 

@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import TermsAndConditions from "./pages/legal/TermsAndConditions";
+import Compliance from "./pages/legal/Compliance";
 import AdminRoute from "./components/AdminRoute";
 import { CartProvider } from "./hooks/useCart";
 import { LanguageProvider } from "./i18n/LanguageContext";
@@ -44,6 +47,12 @@ const App = () => (
                   <Route path="/product/:id" element={<ProductDetails />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Register />} />
+                  
+                  {/* Legal Routes */}
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-conditions" element={<TermsAndConditions />} />
+                  <Route path="/compliance-integrity" element={<Compliance />} />
+
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

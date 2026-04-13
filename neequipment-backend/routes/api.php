@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/quotes/{id}/messages', [QuoteController::class, 'getMessages']);
     Route::post('/quotes/{id}/messages', [QuoteController::class, 'sendMessage']);
     Route::post('/quotes/{id}/report-payment', [QuoteController::class, 'reportPayment']);
+    Route::delete('/quotes/{id}', [QuoteController::class, 'destroy']);
 
     // Gestão de Categorias
     Route::apiResource('categories', CategoryController::class)->except(['index']);

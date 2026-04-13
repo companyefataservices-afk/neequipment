@@ -147,9 +147,9 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700">
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-700">
       {/* Branded Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-dark p-6 rounded-2xl text-white relative overflow-hidden shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-dark p-4 sm:p-6 rounded-2xl text-white relative overflow-hidden shadow-xl">
         <div className="absolute -top-12 -right-12 w-64 h-64 bg-gold/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
         
@@ -175,12 +175,12 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {kpis.map((kpi: any, i: number) => {
           const Icon = getIcon(kpi.icon);
           return (
             <Card key={i} className="glass-card border-border/50 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className={`p-2 rounded-xl bg-muted ${kpi.color}`}>
                     <Icon className="w-4 h-4" />
@@ -207,7 +207,7 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
       </div>
 
       {/* Quick Actions Row */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
         <Button
           className="bg-gold hover:bg-gold-light text-navy-dark font-bold gap-2 rounded-xl shadow-sm"
           onClick={onAddProduct}
@@ -220,12 +220,12 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Chart */}
         <Card className="glass-card border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-bold flex items-center gap-2">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm sm:text-base font-bold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-primary" /> Evolução da Receita (MZN)
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0">
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(210 20% 88%)" vertical={false} />
@@ -262,12 +262,12 @@ const AdminDashboard = ({ onAddProduct }: AdminDashboardProps) => {
 
         {/* Status Distribution */}
         <Card className="glass-card border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-bold flex items-center gap-2">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm sm:text-base font-bold flex items-center gap-2">
               <Package className="w-4 h-4 text-primary" /> Distribuição por Status
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row items-center gap-6">
+          <CardContent className="p-4 pt-0 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
             <div className="w-full sm:w-1/2">
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>

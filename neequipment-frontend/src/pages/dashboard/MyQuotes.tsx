@@ -11,7 +11,8 @@ import {
   Banknote,
   FileDown,
   Building,
-  FileText
+  FileText,
+  Trash2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -165,6 +166,18 @@ const MyQuotes = () => {
     } catch (error) {
       console.error('Error reporting payment:', error);
       toast.error('Erro ao reportar pagamento. Tente novamente.');
+    }
+  };
+
+  const handleDeleteQuote = async (id: number) => {
+    if (!window.confirm('Tem a certeza que deseja remover esta negociação do seu histórico? Esta acção não pode ser desfeita.')) return;
+    try {
+      await api.delete(`/quotes/${id}`);
+      setQuotes(prev => prev.filter(q => q.id !== id));
+      toast.success('Negociação removida do seu histórico.');
+    } catch (error) {
+      console.error('Error deleting quote:', error);
+      toast.error('Erro ao remover negociação.');
     }
   };
 
@@ -335,6 +348,14 @@ const MyQuotes = () => {
                   </Button>
                   <Button variant="outline" onClick={() => { setSelectedQuote(quote); setChatOpen(true); }} className="w-full font-semibold border-gray-200 text-gray-600 gap-2 text-sm rounded-xl">
                     Ver Detalhes
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => handleDeleteQuote(quote.id)} 
+                    className="w-full text-muted-foreground hover:text-red-600 hover:bg-red-50 gap-2 text-xs rounded-xl"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Apagar para mim
                   </Button>
                 </div>
               </div>

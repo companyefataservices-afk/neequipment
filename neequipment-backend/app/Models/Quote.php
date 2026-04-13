@@ -23,6 +23,8 @@ class Quote extends Model
         'invoice_path',
         'expires_at',
         'delivery_info',
+        'deleted_at_client',
+        'deleted_at_admin',
     ];
 
     protected $casts = [

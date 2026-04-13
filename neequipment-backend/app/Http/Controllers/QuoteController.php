@@ -36,6 +36,7 @@ class QuoteController extends Controller
                 $q->whereIn('category_id', $categoryIds);
             });
         }
+        $query->whereNull('deleted_at_admin');
 
         return response()->json($query->get());
     }
@@ -47,6 +48,7 @@ class QuoteController extends Controller
     {
         $user = Auth::user();
         $quotes = Quote::where('user_id', $user->id)
+            ->whereNull('deleted_at_client')
             ->with(['items.product.images', 'messages.user:id,name'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -446,5 +448,26 @@ class QuoteController extends Controller
             'message' => 'Pagamento reportado com sucesso',
             'quote' => $quote->load(['items.product.images', 'messages'])
         ]);
+    }
+
+    /**
+     * Remover (esconder) uma cotação/negociação para o usuário atual.
+     */
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $quote = Quote::findOrFail($id);
+
+        if ($user->role === 'customer') {
+            if ($quote->user_id !== $user->id) {
+                return response()->json(['message' => 'Não tem permissão para remover esta negociação.'], 403);
+            }
+            $quote->update(['deleted_at_client' => now()]);
+        } else {
+            // Admin ou Colaborador
+            $quote->update(['deleted_at_admin' => now()]);
+        }
+
+        return response()->json(['message' => 'Negociação removida com sucesso.']);
     }
 }

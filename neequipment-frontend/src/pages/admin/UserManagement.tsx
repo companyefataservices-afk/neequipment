@@ -15,7 +15,9 @@ import {
     Zap,
     Edit2,
     Trash2,
-    Layers
+    Layers,
+    Eye,
+    EyeOff
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +51,9 @@ const UserManagement = () => {
         category_ids: [] as string[],
         _workerMode: false
     });
+    
+    // UI states
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -386,14 +391,23 @@ const UserManagement = () => {
                                         <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-1">
                                             {memberFormData.id ? 'Nova Senha (opcional)' : 'Senha de Acesso'}
                                         </label>
-                                        <Input 
-                                            required={!memberFormData.id}
-                                            type="password"
-                                            placeholder={memberFormData.id ? "Manter atual" : "Min: 6 chars"} 
-                                            className="h-12 bg-muted/20 border-border/30 rounded-2xl focus:ring-primary/20 text-sm"
-                                            value={memberFormData.password}
-                                            onChange={(e) => setMemberFormData({...memberFormData, password: e.target.value})}
-                                        />
+                                        <div className="relative">
+                                            <Input 
+                                                required={!memberFormData.id}
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder={memberFormData.id ? "Manter atual" : "Min: 6 chars"} 
+                                                className="h-12 bg-muted/20 border-border/30 rounded-2xl focus:ring-primary/20 text-sm pr-10"
+                                                value={memberFormData.password}
+                                                onChange={(e) => setMemberFormData({...memberFormData, password: e.target.value})}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 

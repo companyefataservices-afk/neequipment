@@ -14,8 +14,10 @@ interface QuoteData {
   status: string;
   items: QuoteItem[];
   user: { name: string; email: string };
+  contact_email?: string | null;
   company_name?: string;
   company_nif?: string;
+  vat_number?: string | null;
   total_estimated_value: number;
   expires_at?: string | null;
   delivery_info?: string | null;
@@ -132,8 +134,8 @@ export const generateQuotePDF = (quote: QuoteData, settings: Settings) => {
         <div class="client-section">
           <div class="client-info">
             <h2>${quote.company_name || quote.user?.name || 'Cliente'}</h2>
-            <p>Email: ${quote.user?.email || '---'}</p>
-            ${quote.company_nif ? `<p>Nuit: ${quote.company_nif}</p>` : ''}
+            <p>Email: ${quote.contact_email || quote.user?.email || '---'}</p>
+            ${(quote.company_nif || quote.vat_number) ? `<p>Nuit: ${quote.company_nif || quote.vat_number}</p>` : ''}
             <p>Status: ${(quote.status || 'Pendente').toUpperCase()}</p>
           </div>
           <div class="ref-box">

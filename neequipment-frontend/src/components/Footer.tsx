@@ -1,5 +1,6 @@
 import { Linkedin, Instagram, Facebook } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { Link } from 'react-router-dom';
 const logoNE = "/logo-ne-equipment.png";
 
 const Footer = () => {
@@ -73,9 +74,9 @@ const Footer = () => {
             </div>
 
             <div className="flex gap-6">
-              <a href="#" className="hover:text-gold transition-colors">{t.footer.privacy}</a>
-              <a href="#" className="hover:text-gold transition-colors">{t.footer.terms}</a>
-              <a href="#" className="hover:text-gold transition-colors">{t.footer.compliance}</a>
+              <Link to="/privacy" className="hover:text-gold transition-colors">{t.footer.privacy}</Link>
+              <Link to="/terms-conditions" className="hover:text-gold transition-colors">{t.footer.terms}</Link>
+              <Link to="/compliance-integrity" className="hover:text-gold transition-colors">{t.footer.compliance}</Link>
             </div>
           </div>
         </div>

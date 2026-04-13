@@ -12,6 +12,8 @@ import {
   Bell,
   Search,
   Settings,
+  Menu,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,6 +61,7 @@ const AdminLayout = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
 
   const isColaborador = !user?.is_superadmin && (user?.role === 'collaborator' || (user?.categories && user.categories.length > 0) || user?.assigned_category || user?.assigned_category_id);
@@ -180,11 +183,25 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex min-h-screen w-full bg-background overflow-x-hidden">
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isMobileSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       <aside
         className={cn(
-          'sticky top-0 h-screen flex flex-col border-r border-border bg-sidebar text-sidebar-foreground transition-all duration-300 z-30',
-          collapsed ? 'w-[68px]' : 'w-[260px]'
+          'fixed inset-y-0 left-0 flex flex-col border-r border-border bg-sidebar text-sidebar-foreground transition-all duration-300 z-50 lg:sticky lg:top-0 lg:h-screen',
+          collapsed ? 'w-[68px]' : 'w-[260px]',
+          isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border shrink-0">
@@ -217,6 +234,7 @@ const AdminLayout = () => {
                   setEditingProduct(null);
                   setViewingQuoteId(null);
                   setViewingProductId(null);
+                  if (window.innerWidth < 1024) setIsMobileSidebarOpen(false);
                 }}
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative',
@@ -272,12 +290,20 @@ const AdminLayout = () => {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="sticky top-0 z-20 h-16 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setIsMobileSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
             <h1 className="text-lg font-bold text-foreground hidden sm:block">
               {navItems.find((n) => n.id === section)?.label}
             </h1>
             <div className="relative max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Pesquisar..." className="pl-9 h-9 w-48 lg:w-64 bg-muted/50 border-border/50" />
+              <Input placeholder="Pesquisar..." className="pl-9 h-9 w-32 sm:w-48 lg:w-64 bg-muted/50 border-border/50" />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -349,7 +375,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto">
           <motion.div key={section} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             {renderContent()}
           </motion.div>
