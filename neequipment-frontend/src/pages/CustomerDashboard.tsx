@@ -89,7 +89,7 @@ const CustomerDashboard = ({ onBack, userName: propUserName = 'Utilizador' }: Cu
         <div className="flex flex-col lg:flex-row lg:gap-12">
 
           {/* Sidebar corporativa */}
-          <aside className="lg:w-72 flex-shrink-0">
+          <aside className="lg:w-72 flex-shrink-0 lg:sticky lg:top-28 self-start">
             <nav className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">

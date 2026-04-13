@@ -183,7 +183,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background overflow-x-hidden">
+    <div className="flex h-screen w-full bg-background overflow-hidden font-sans">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileSidebarOpen && (
